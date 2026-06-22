@@ -1,26 +1,172 @@
 @import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* === PRIMARY PALETTE === */
+  --color-primary: #041627;
+  --color-primary-container: #1a2b3c;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #8192a7;
+  --color-primary-fixed: #d2e4fb;
+  --color-primary-fixed-dim: #b7c8de;
+  --color-inverse-primary: #b7c8de;
+
+  /* === SURFACE PALETTE === */
+  --color-surface: #fcf9f8;
+  --color-background: #fcf9f8;
+  --color-surface-bright: #fcf9f8;
+  --color-surface-dim: #dcd9d9;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f6f3f2;
+  --color-surface-container: #f0eded;
+  --color-surface-container-high: #eae7e7;
+  --color-surface-container-highest: #e5e2e1;
+  --color-surface-variant: #e5e2e1;
+  --color-on-surface: #1b1c1c;
+  --color-on-surface-variant: #44474c;
+  --color-inverse-surface: #303030;
+  --color-inverse-on-surface: #f3f0ef;
+
+  /* === SECONDARY PALETTE === */
+  --color-secondary: #5f5e5b;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #e5e2dd;
+  --color-secondary-fixed: #e5e2dd;
+  --color-secondary-fixed-dim: #c9c6c2;
+  --color-on-secondary-container: #656461;
+
+  /* === TERTIARY / ACCENT === */
+  --color-tertiary: #1e1408;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #34281b;
+  --color-tertiary-fixed: #f4dfcb;
+  --color-tertiary-fixed-dim: #d7c3b0;
+  --color-on-tertiary-fixed: #241a0e;
+  --color-on-tertiary-container: #a08e7d;
+
+  /* === OUTLINE === */
+  --color-outline: #74777d;
+  --color-outline-variant: #c4c6cd;
+  --color-surface-tint: #4f6073;
+
+  /* === ERROR === */
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  /* === TYPOGRAPHY — FONT FAMILIES === */
+  --font-display: var(--font-playfair), 'Playfair Display', serif;
+  --font-body: var(--font-inter), 'Inter', sans-serif;
+
+  /* === TYPOGRAPHY — FONT SIZES === */
+  --text-display-lg: 3rem;
+  --text-display-lg--line-height: 3.5rem;
+  --text-display-lg--letter-spacing: -0.02em;
+  --text-display-lg--font-weight: 700;
+
+  --text-headline-lg: 2rem;
+  --text-headline-lg--line-height: 2.5rem;
+  --text-headline-lg--font-weight: 600;
+
+  --text-headline-lg-mobile: 1.75rem;
+  --text-headline-lg-mobile--line-height: 2.25rem;
+  --text-headline-lg-mobile--font-weight: 600;
+
+  --text-headline-md: 1.5rem;
+  --text-headline-md--line-height: 2rem;
+  --text-headline-md--font-weight: 600;
+
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.75rem;
+
+  --text-body-md: 1rem;
+  --text-body-md--line-height: 1.5rem;
+
+  --text-label-md: 0.875rem;
+  --text-label-md--line-height: 1.25rem;
+  --text-label-md--letter-spacing: 0.05em;
+  --text-label-md--font-weight: 600;
+
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1rem;
+
+  /* === SPACING === */
+  --spacing-base: 0.5rem;
+  --spacing-stack-sm: 0.75rem;
+  --spacing-stack-md: 1.5rem;
+  --spacing-stack-lg: 3rem;
+  --spacing-gutter: 1.5rem;
+  --spacing-margin-desktop: 4rem;
+  --spacing-margin-mobile: 1.25rem;
+
+  /* === SHADOWS === */
+  --shadow-card: 0px 4px 20px rgba(0, 0, 0, 0.04);
+  --shadow-card-hover: 0px 10px 40px rgba(0, 0, 0, 0.08);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* === GLOBAL UTILITY CLASSES === */
+.glass-effect {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(252, 249, 248, 0.85);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.transition-standard {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+}
+
+.material-symbols-filled {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* === BASE === */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #fcf9f8;
+  color: #1b1c1c;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* === CONTAINER HELPER === */
+.page-container {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 4rem;
+  padding-right: 4rem;
+}
+
+@media (max-width: 768px) {
+  .page-container {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
 }
