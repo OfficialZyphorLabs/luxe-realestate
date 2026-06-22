@@ -1,8 +1,27 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Luxe Real Estate
+
+A modern, full-featured real estate platform built with [Next.js](https://nextjs.org), developed by [OfficialZyphorLabs](https://github.com/OfficialZyphorLabs).
+
+## Overview
+
+Luxe Real Estate is a premium property listing and discovery application designed to connect buyers, sellers, and agents in an elegant, intuitive experience. Browse listings, explore neighborhoods, and manage properties — all in one place.
+
+## Tech Stack
+
+- **Framework:** Next.js (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **Font:** Geist (via `next/font`)
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
 
 ```bash
 npm run dev
@@ -14,23 +33,31 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser to see the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Start editing by modifying `app/page.tsx` — the page hot-reloads as you save.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure
 
-## Learn More
+```
+luxe-realestate/
+├── app/          # Next.js App Router pages and layouts
+├── components/   # Reusable UI components
+├── public/       # Static assets
+└── styles/       # Global styles
+```
 
-To learn more about Next.js, take a look at the following resources:
+## License
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Licensed under the [Apache License 2.0](./LICENSE-APACHE-2.0).
+Copyright 2026 OfficialZyphorLabs.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploy
 
-## Deploy on Vercel
+The easiest way to deploy is via [Vercel](https://vercel.com/new):
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+vercel deploy
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See the [Next.js deployment docs](https://nextjs.org/docs/app/building-your-application/deploying) for more options.
