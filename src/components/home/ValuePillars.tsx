@@ -3,7 +3,7 @@ const PILLARS = [
     icon: 'verified_user',
     title: 'Uncompromising Integrity',
     description:
-      'Every transaction is built on trust, transparency, and decades of earned reputation among the world's most discerning clients.',
+      "Every transaction is built on trust, transparency, and decades of earned reputation among the world's most discerning clients.",
   },
   {
     icon: 'insights',
