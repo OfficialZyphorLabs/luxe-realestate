@@ -8,7 +8,17 @@ import { AmenityItem } from '@/components/property/AmenityItem'
 import { SimilarProperties } from '@/components/property/SimilarProperties'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
+import { Select } from '@/components/ui/Select'
 import type { Property } from '@/types'
+
+const TOUR_TIME_OPTIONS = [
+  { value: '', label: 'Select a time' },
+  { value: '9am', label: '9:00 AM' },
+  { value: '11am', label: '11:00 AM' },
+  { value: '1pm', label: '1:00 PM' },
+  { value: '3pm', label: '3:00 PM' },
+  { value: '5pm', label: '5:00 PM' },
+]
 
 const MOCK_PROPERTY: Property = {
   id: '1',
@@ -251,23 +261,12 @@ export default function PropertyDetailPage() {
                   />
                 </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-body text-xs font-semibold text-secondary uppercase tracking-widest">
-                    Preferred Time
-                  </label>
-                  <select
-                    value={tourTime}
-                    onChange={(e) => setTourTime(e.target.value)}
-                    className="bg-surface-container-low border border-outline-variant/50 rounded-lg px-4 py-3 font-body text-body-md text-on-surface appearance-none focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-standard"
-                  >
-                    <option value="">Select a time</option>
-                    <option value="9am">9:00 AM</option>
-                    <option value="11am">11:00 AM</option>
-                    <option value="1pm">1:00 PM</option>
-                    <option value="3pm">3:00 PM</option>
-                    <option value="5pm">5:00 PM</option>
-                  </select>
-                </div>
+                <Select
+                  label="Preferred Time"
+                  value={tourTime}
+                  onChange={(e) => setTourTime(e.target.value)}
+                  options={TOUR_TIME_OPTIONS}
+                />
 
                 <Button size="lg" fullWidth className="rounded-xl">
                   Request Tour
