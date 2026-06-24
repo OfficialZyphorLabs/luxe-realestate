@@ -3,8 +3,9 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import { useScroll, useMotionValueEvent } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { useScrollShrink } from '@/hooks/useScrollShrink'
+import { NavDesktopBody, NavMobileBody, MobileMenuPanel } from '@/components/ui/resizable-navbar'
 
 const NAV_LINKS = [
   { href: '/properties', label: 'Listings' },
@@ -14,100 +15,130 @@ const NAV_LINKS = [
 ]
 
 export function Navbar() {
-  const isScrolled = useScrollShrink(50)
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [visible, setVisible] = useState(false)
+
+  const { scrollY } = useScroll()
+  useMotionValueEvent(scrollY, 'change', (latest) => {
+    const threshold = typeof window !== 'undefined' ? window.innerHeight * 0.5 : 400
+    setVisible(latest > threshold)
+  })
+
+  const linkClass = (href: string) =>
+    cn(
+      'font-body text-label-md font-semibold transition-colors duration-200',
+      visible
+        ? 'text-on-primary/80 hover:text-on-primary'
+        : pathname === href || pathname.startsWith(href + '/')
+          ? 'text-primary border-b-2 border-primary pb-0.5'
+          : 'text-secondary hover:text-primary'
+    )
 
   return (
-    <header
-      className={cn(
-        'fixed top-0 left-0 right-0 z-50 bg-surface/80 backdrop-blur-md transition-standard',
-        isScrolled ? 'py-2 shadow-md' : 'py-4 shadow-sm'
-      )}
-    >
-      <nav
-        className="page-container flex items-center justify-between"
-        aria-label="Main navigation"
-      >
+    <header className="fixed inset-x-0 top-0 z-50" aria-label="Main navigation">
+      {/* ── Desktop ── */}
+      <NavDesktopBody visible={visible}>
         {/* Logo */}
-        <Link href="/" className="font-display text-headline-md font-semibold text-primary">
+        <Link
+          href="/"
+          className={cn(
+            'font-display text-headline-md font-semibold shrink-0 transition-colors duration-300',
+            visible ? 'text-on-primary' : 'text-primary'
+          )}
+        >
           LuxeReal
         </Link>
 
-        {/* Desktop nav links */}
-        <ul className="hidden md:flex items-center gap-8">
-          {NAV_LINKS.map((link) => {
-            const isActive = pathname === link.href || pathname.startsWith(link.href + '/')
-            return (
+        {/* Centered nav links */}
+        <nav className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <ul className="flex items-center gap-8 pointer-events-auto">
+            {NAV_LINKS.map((link) => (
               <li key={`${link.href}-${link.label}`}>
-                <Link
-                  href={link.href}
-                  className={cn(
-                    'font-body text-label-md font-semibold transition-colors hover:text-primary',
-                    isActive
-                      ? 'text-primary border-b-2 border-primary pb-1'
-                      : 'text-secondary'
-                  )}
-                >
+                <Link href={link.href} className={linkClass(link.href)}>
                   {link.label}
                 </Link>
               </li>
-            )
-          })}
-        </ul>
+            ))}
+          </ul>
+        </nav>
 
-        {/* Desktop right actions */}
-        <div className="hidden md:flex items-center gap-3">
-          <button
-            className="flex items-center gap-1.5 bg-surface-container-low px-4 py-2 rounded-full font-body text-label-md text-secondary hover:text-primary transition-colors"
-            aria-label="Search properties"
-          >
-            <span className="material-symbols-outlined text-[18px]">search</span>
-            <span>Search</span>
-          </button>
+        {/* Right actions */}
+        <div className="flex items-center gap-3 shrink-0">
+          {!visible && (
+            <button
+              className="hidden xl:flex items-center gap-1.5 bg-surface-container-low px-4 py-2 rounded-full font-body text-label-md text-secondary hover:text-primary transition-colors"
+              aria-label="Search properties"
+            >
+              <span className="material-symbols-outlined text-[18px]">search</span>
+              Search
+            </button>
+          )}
           <Link
             href="/contact"
-            className="bg-primary text-on-primary px-5 py-2 rounded-full font-body text-label-md font-semibold hover:opacity-90 transition-standard active:scale-95"
+            className={cn(
+              'px-5 py-2 rounded-full font-body text-label-md font-semibold transition-standard active:scale-95 whitespace-nowrap',
+              visible
+                ? 'bg-on-primary text-primary hover:bg-surface-dim'
+                : 'bg-primary text-on-primary hover:opacity-90'
+            )}
           >
             List Your Property
           </Link>
         </div>
+      </NavDesktopBody>
 
-        {/* Mobile hamburger */}
-        <button
-          className="md:hidden p-2 text-primary"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle mobile menu"
-          aria-expanded={mobileOpen}
-        >
-          <span className="material-symbols-outlined">{mobileOpen ? 'close' : 'menu'}</span>
-        </button>
-      </nav>
+      {/* ── Mobile ── */}
+      <NavMobileBody visible={visible}>
+        <div className="flex items-center justify-between w-full">
+          <Link
+            href="/"
+            className={cn(
+              'font-display text-headline-md font-semibold transition-colors duration-300',
+              visible ? 'text-on-primary' : 'text-primary'
+            )}
+          >
+            LuxeReal
+          </Link>
 
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="md:hidden bg-surface border-t border-outline-variant/20 py-4">
-          <div className="page-container flex flex-col gap-4">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={`mobile-${link.href}-${link.label}`}
-                href={link.href}
-                className="font-body text-body-md text-on-surface hover:text-primary transition-colors py-2"
-                onClick={() => setMobileOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className={cn(
+              'p-2 transition-colors',
+              visible ? 'text-on-primary' : 'text-primary'
+            )}
+            aria-label="Toggle mobile menu"
+            aria-expanded={mobileOpen}
+          >
+            <span className="material-symbols-outlined">
+              {mobileOpen ? 'close' : 'menu'}
+            </span>
+          </button>
+        </div>
+
+        {/* Slide-down mobile menu */}
+        <MobileMenuPanel isOpen={mobileOpen}>
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={`mobile-${link.href}-${link.label}`}
+              href={link.href}
+              onClick={() => setMobileOpen(false)}
+              className="block px-3 py-3 rounded-xl font-body text-body-md text-on-primary/80 hover:text-on-primary hover:bg-primary-container/50 transition-standard"
+            >
+              {link.label}
+            </Link>
+          ))}
+          <div className="border-t border-on-primary/10 mt-1 pt-3">
             <Link
               href="/contact"
-              className="bg-primary text-on-primary px-5 py-3 rounded-xl font-body text-label-md font-semibold text-center hover:opacity-90 transition-standard"
               onClick={() => setMobileOpen(false)}
+              className="block w-full bg-on-primary text-primary px-5 py-3 rounded-xl font-body text-label-md font-semibold text-center hover:bg-surface-dim transition-standard active:scale-95"
             >
               List Your Property
             </Link>
           </div>
-        </div>
-      )}
+        </MobileMenuPanel>
+      </NavMobileBody>
     </header>
   )
 }
