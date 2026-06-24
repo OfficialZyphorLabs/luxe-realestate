@@ -264,7 +264,7 @@ export default function PropertyDetailPage() {
                 <Select
                   label="Preferred Time"
                   value={tourTime}
-                  onChange={(e) => setTourTime(e.target.value)}
+                  onChange={setTourTime}
                   options={TOUR_TIME_OPTIONS}
                 />
 
