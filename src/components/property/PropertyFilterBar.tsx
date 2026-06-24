@@ -50,21 +50,17 @@ export function PropertyFilterBar({ onFilter }: PropertyFilterBarProps) {
     priceRange: '',
   })
 
-  const handleChange = (key: keyof FilterOptions) => (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFilters((prev) => ({ ...prev, [key]: e.target.value }))
-  }
-
-  const handleApply = () => {
-    onFilter?.(filters)
-  }
+  const set = (key: keyof FilterOptions) => (value: string) =>
+    setFilters((prev) => ({ ...prev, [key]: value }))
 
   return (
     <div className="bg-surface-container-low rounded-xl p-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-      <div className="flex flex-1 flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-outline-variant/30 bg-surface rounded-xl overflow-hidden shadow-sm">
+      {/* overflow-hidden intentionally removed — keeps dropdown panels unclipped */}
+      <div className="flex flex-1 flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-outline-variant/30 bg-surface rounded-xl shadow-sm">
         <Select
           variant="ghost"
           value={filters.location}
-          onChange={handleChange('location')}
+          onChange={set('location')}
           options={LOCATION_OPTIONS}
           aria-label="Filter by location"
           className="flex-1 min-w-0"
@@ -72,7 +68,7 @@ export function PropertyFilterBar({ onFilter }: PropertyFilterBarProps) {
         <Select
           variant="ghost"
           value={filters.propertyType}
-          onChange={handleChange('propertyType')}
+          onChange={set('propertyType')}
           options={PROPERTY_TYPE_OPTIONS}
           aria-label="Filter by property type"
           className="flex-1 min-w-0"
@@ -80,7 +76,7 @@ export function PropertyFilterBar({ onFilter }: PropertyFilterBarProps) {
         <Select
           variant="ghost"
           value={filters.beds}
-          onChange={handleChange('beds')}
+          onChange={set('beds')}
           options={BEDS_OPTIONS}
           aria-label="Filter by bedrooms"
           className="flex-1 min-w-0"
@@ -88,14 +84,14 @@ export function PropertyFilterBar({ onFilter }: PropertyFilterBarProps) {
         <Select
           variant="ghost"
           value={filters.priceRange}
-          onChange={handleChange('priceRange')}
+          onChange={set('priceRange')}
           options={PRICE_OPTIONS}
           aria-label="Filter by price range"
           className="flex-1 min-w-0"
         />
       </div>
 
-      <Button onClick={handleApply} size="md" className="shrink-0 px-8">
+      <Button onClick={() => onFilter?.(filters)} size="md" className="shrink-0 px-8">
         <span className="material-symbols-outlined text-[18px]">filter_list</span>
         Apply
       </Button>
