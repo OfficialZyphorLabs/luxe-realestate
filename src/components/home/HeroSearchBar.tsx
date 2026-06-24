@@ -49,7 +49,7 @@ export function HeroSearchBar() {
             variant="ghost"
             icon="location_on"
             value={location}
-            onChange={(e) => setLocation(e.target.value)}
+            onChange={setLocation}
             options={LOCATION_OPTIONS}
             aria-label="Search by location"
             className="flex-1"
@@ -58,7 +58,7 @@ export function HeroSearchBar() {
             variant="ghost"
             icon="home"
             value={type}
-            onChange={(e) => setType(e.target.value)}
+            onChange={setType}
             options={TYPE_OPTIONS}
             aria-label="Search by property type"
             className="flex-1"
@@ -67,7 +67,7 @@ export function HeroSearchBar() {
             variant="ghost"
             icon="bed"
             value={beds}
-            onChange={(e) => setBeds(e.target.value)}
+            onChange={setBeds}
             options={BEDS_OPTIONS}
             aria-label="Search by bedrooms"
             className="flex-1"
