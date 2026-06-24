@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useScroll, useMotionValueEvent } from 'motion/react'
 import { cn } from '@/lib/utils'
 import { NavDesktopBody, NavMobileBody, MobileMenuPanel } from '@/components/ui/resizable-navbar'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
 const NAV_LINKS = [
   { href: '/properties', label: 'Listings' },
@@ -74,6 +75,7 @@ export function Navbar() {
               Search
             </button>
           )}
+          <ThemeToggle visible={visible} />
           <Link
             href="/contact"
             className={cn(
@@ -101,19 +103,22 @@ export function Navbar() {
             LuxeReal
           </Link>
 
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className={cn(
-              'p-2 transition-colors',
-              visible ? 'text-on-primary' : 'text-primary'
-            )}
-            aria-label="Toggle mobile menu"
-            aria-expanded={mobileOpen}
-          >
-            <span className="material-symbols-outlined">
-              {mobileOpen ? 'close' : 'menu'}
-            </span>
-          </button>
+          <div className="flex items-center gap-1">
+            <ThemeToggle visible={visible} />
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className={cn(
+                'p-2 transition-colors',
+                visible ? 'text-on-primary' : 'text-primary'
+              )}
+              aria-label="Toggle mobile menu"
+              aria-expanded={mobileOpen}
+            >
+              <span className="material-symbols-outlined">
+                {mobileOpen ? 'close' : 'menu'}
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Slide-down mobile menu */}

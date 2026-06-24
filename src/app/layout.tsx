@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
+import { ThemeProvider, ThemeApplicator } from '@/context/ThemeContext'
+import { ThemeTransition } from '@/components/ui/ThemeTransition'
 import './globals.css'
 
 const inter = Inter({
@@ -42,9 +44,13 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-surface text-on-surface antialiased flex flex-col">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <ThemeProvider>
+          <ThemeApplicator />
+          <ThemeTransition />
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   )
