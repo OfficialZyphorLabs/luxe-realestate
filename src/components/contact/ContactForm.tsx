@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { Select } from '@/components/ui/Select'
 
 const INQUIRY_TYPES = [
   { value: 'buying', label: 'Buying' },
@@ -81,26 +82,13 @@ export function ContactForm() {
           value={form.phone}
           onChange={handleChange('phone')}
         />
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor="inquiryType"
-            className="font-body text-label-md font-semibold text-secondary uppercase tracking-widest text-xs"
-          >
-            Inquiry Type
-          </label>
-          <select
-            id="inquiryType"
-            value={form.inquiryType}
-            onChange={handleChange('inquiryType')}
-            className="bg-surface-container-low border border-outline-variant/50 rounded-lg px-4 py-3 font-body text-body-md text-on-surface appearance-none focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-standard"
-          >
-            {INQUIRY_TYPES.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Select
+          id="inquiryType"
+          label="Inquiry Type"
+          value={form.inquiryType}
+          onChange={handleChange('inquiryType')}
+          options={INQUIRY_TYPES}
+        />
       </div>
 
       <div className="flex flex-col gap-1.5">
