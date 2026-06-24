@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Select } from '@/components/ui/Select'
 
 const LOCATION_OPTIONS = [
   { value: '', label: 'Any Location' },
@@ -40,60 +41,37 @@ export function HeroSearchBar() {
     router.push(`/properties?${params.toString()}`)
   }
 
-  const selectClass =
-    'bg-transparent font-body text-body-md text-on-surface placeholder:text-secondary appearance-none cursor-pointer px-4 py-3 focus:outline-none flex-1 min-w-0'
-
   return (
     <div className="glass-effect rounded-2xl shadow-xl p-2 max-w-3xl w-full mx-auto">
       <div className="flex flex-col sm:flex-row items-stretch">
         <div className="flex flex-1 flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-outline-variant/30">
-          <div className="flex items-center px-2">
-            <span className="material-symbols-outlined text-[18px] text-secondary shrink-0">location_on</span>
-            <select
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className={selectClass}
-              aria-label="Search by location"
-            >
-              {LOCATION_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex items-center px-2">
-            <span className="material-symbols-outlined text-[18px] text-secondary shrink-0">home</span>
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              className={selectClass}
-              aria-label="Search by property type"
-            >
-              {TYPE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex items-center px-2">
-            <span className="material-symbols-outlined text-[18px] text-secondary shrink-0">bed</span>
-            <select
-              value={beds}
-              onChange={(e) => setBeds(e.target.value)}
-              className={selectClass}
-              aria-label="Search by bedrooms"
-            >
-              {BEDS_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <Select
+            variant="ghost"
+            icon="location_on"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            options={LOCATION_OPTIONS}
+            aria-label="Search by location"
+            className="flex-1"
+          />
+          <Select
+            variant="ghost"
+            icon="home"
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            options={TYPE_OPTIONS}
+            aria-label="Search by property type"
+            className="flex-1"
+          />
+          <Select
+            variant="ghost"
+            icon="bed"
+            value={beds}
+            onChange={(e) => setBeds(e.target.value)}
+            options={BEDS_OPTIONS}
+            aria-label="Search by bedrooms"
+            className="flex-1"
+          />
         </div>
 
         <button
