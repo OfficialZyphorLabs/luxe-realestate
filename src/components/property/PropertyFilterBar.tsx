@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
+import { Select } from '@/components/ui/Select'
 import type { FilterOptions } from '@/types'
 
 const LOCATION_OPTIONS = [
@@ -57,63 +58,41 @@ export function PropertyFilterBar({ onFilter }: PropertyFilterBarProps) {
     onFilter?.(filters)
   }
 
-  const selectClass =
-    'bg-surface border-0 font-body text-body-md text-on-surface appearance-none cursor-pointer px-3 py-2 flex-1 min-w-0 focus:outline-none'
-
   return (
     <div className="bg-surface-container-low rounded-xl p-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
       <div className="flex flex-1 flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-outline-variant/30 bg-surface rounded-xl overflow-hidden shadow-sm">
-        <select
+        <Select
+          variant="ghost"
           value={filters.location}
           onChange={handleChange('location')}
-          className={selectClass}
+          options={LOCATION_OPTIONS}
           aria-label="Filter by location"
-        >
-          {LOCATION_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-
-        <select
+          className="flex-1 min-w-0"
+        />
+        <Select
+          variant="ghost"
           value={filters.propertyType}
           onChange={handleChange('propertyType')}
-          className={selectClass}
+          options={PROPERTY_TYPE_OPTIONS}
           aria-label="Filter by property type"
-        >
-          {PROPERTY_TYPE_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-
-        <select
+          className="flex-1 min-w-0"
+        />
+        <Select
+          variant="ghost"
           value={filters.beds}
           onChange={handleChange('beds')}
-          className={selectClass}
+          options={BEDS_OPTIONS}
           aria-label="Filter by bedrooms"
-        >
-          {BEDS_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-
-        <select
+          className="flex-1 min-w-0"
+        />
+        <Select
+          variant="ghost"
           value={filters.priceRange}
           onChange={handleChange('priceRange')}
-          className={selectClass}
+          options={PRICE_OPTIONS}
           aria-label="Filter by price range"
-        >
-          {PRICE_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+          className="flex-1 min-w-0"
+        />
       </div>
 
       <Button onClick={handleApply} size="md" className="shrink-0 px-8">
