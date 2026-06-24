@@ -86,7 +86,7 @@ export function ContactForm() {
           id="inquiryType"
           label="Inquiry Type"
           value={form.inquiryType}
-          onChange={handleChange('inquiryType')}
+          onChange={(val) => setForm((prev) => ({ ...prev, inquiryType: val }))}
           options={INQUIRY_TYPES}
         />
       </div>
