@@ -1,7 +1,14 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '../src/generated/prisma'
+import { PrismaPg } from '@prisma/adapter-pg'
 import bcrypt from 'bcryptjs'
 
-const prisma = new PrismaClient()
+const connectionString = process.env.DATABASE_URL
+if (!connectionString) {
+  throw new Error('DATABASE_URL is not set — add it to .env.local before seeding')
+}
+
+const adapter = new PrismaPg({ connectionString })
+const prisma = new PrismaClient({ adapter })
 
 async function main() {
   console.log('Seeding database...\n')
@@ -49,20 +56,10 @@ async function main() {
       emailVerified: new Date(),
     },
   })
-
   await prisma.membership.upsert({
-    where: {
-      userId_organizationId: {
-        userId: orgAdmin.id,
-        organizationId: testOrg.id,
-      },
-    },
+    where: { userId_organizationId: { userId: orgAdmin.id, organizationId: testOrg.id } },
     update: {},
-    create: {
-      userId: orgAdmin.id,
-      organizationId: testOrg.id,
-      role: 'ADMIN',
-    },
+    create: { userId: orgAdmin.id, organizationId: testOrg.id, role: 'ADMIN' },
   })
   console.log(`✓ Org Admin: ${orgAdmin.email}`)
 
@@ -78,20 +75,10 @@ async function main() {
       emailVerified: new Date(),
     },
   })
-
   await prisma.membership.upsert({
-    where: {
-      userId_organizationId: {
-        userId: member.id,
-        organizationId: testOrg.id,
-      },
-    },
+    where: { userId_organizationId: { userId: member.id, organizationId: testOrg.id } },
     update: {},
-    create: {
-      userId: member.id,
-      organizationId: testOrg.id,
-      role: 'MEMBER',
-    },
+    create: { userId: member.id, organizationId: testOrg.id, role: 'MEMBER' },
   })
   console.log(`✓ Member: ${member.email}`)
 
@@ -112,9 +99,9 @@ async function main() {
   console.log('Database seeded successfully!')
   console.log('')
   console.log('Test credentials:')
-  console.log('  SuperAdmin:  admin@luxereal.com         / SuperAdmin@123!')
-  console.log('  Org Admin:   orgadmin@acmerealty.com    / OrgAdmin@123!')
-  console.log('  Agent/Member: agent@acmerealty.com      / Member@123!')
+  console.log('  SuperAdmin:   admin@luxereal.com          / SuperAdmin@123!')
+  console.log('  Org Admin:    orgadmin@acmerealty.com     / OrgAdmin@123!')
+  console.log('  Agent/Member: agent@acmerealty.com        / Member@123!')
 }
 
 main()
