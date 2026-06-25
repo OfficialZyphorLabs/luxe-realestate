@@ -1,12 +1,12 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  provider   = "prisma-client-js"
+  output     = "../src/generated/prisma"
+  engineType = "wasm"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
-  // directUrl = env("DIRECT_URL")  // Uncomment when using Neon connection pooling
+  // Connection URL is configured in prisma.config.ts (Prisma v7)
 }
 
 // ─── PLATFORM LEVEL ───────────────────────────────────────
