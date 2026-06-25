@@ -1,0 +1,269 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL")  // Uncomment when using Neon connection pooling
+}
+
+// ─── PLATFORM LEVEL ───────────────────────────────────────
+
+model Organization {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  name      String
+  logoUrl   String?
+  plan      Plan      @default(STARTER)
+  status    OrgStatus @default(ACTIVE)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  memberships  Membership[]
+  properties   Property[]
+  leads        Lead[]
+  invitations  Invitation[]
+  subscription Subscription?
+  settings     OrgSettings?
+
+  @@map("organizations")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  passwordHash  String?   // null for OAuth-only users
+  avatarUrl     String?
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  isSuperAdmin  Boolean   @default(false)
+
+  memberships Membership[]
+  accounts    Account[]
+  sessions    Session[]
+
+  @@map("users")
+}
+
+// Junction: User ↔ Organization with role
+model Membership {
+  id             String   @id @default(cuid())
+  userId         String
+  organizationId String
+  role           OrgRole  @default(MEMBER)
+  joinedAt       DateTime @default(now())
+  invitedBy      String?
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+  @@map("memberships")
+}
+
+model Invitation {
+  id             String    @id @default(cuid())
+  email          String
+  organizationId String
+  role           OrgRole   @default(MEMBER)
+  token          String    @unique @default(cuid())
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  invitedById    String
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("invitations")
+}
+
+// ─── ORG LEVEL ────────────────────────────────────────────
+
+model Property {
+  id             String         @id @default(cuid())
+  organizationId String
+  slug           String
+  title          String
+  price          Float
+  address        String
+  city           String
+  state          String
+  beds           Int?
+  baths          Int?
+  sqft           Int?
+  status         PropertyStatus @default(ACTIVE)
+  createdById    String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  images       PropertyImage[]
+  leads        Lead[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@map("properties")
+}
+
+model PropertyImage {
+  id         String @id @default(cuid())
+  propertyId String
+  url        String
+  order      Int    @default(0)
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_images")
+}
+
+model Lead {
+  id             String     @id @default(cuid())
+  organizationId String
+  propertyId     String?
+  name           String
+  email          String
+  phone          String?
+  message        String?
+  status         LeadStatus @default(NEW)
+  assignedTo     String?
+  createdAt      DateTime   @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  property     Property?    @relation(fields: [propertyId], references: [id])
+
+  @@index([organizationId])
+  @@map("leads")
+}
+
+model OrgSettings {
+  id                  String  @id @default(cuid())
+  organizationId      String  @unique
+  primaryColor        String?
+  customDomain        String? @unique
+  allowPublicListings Boolean @default(true)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("org_settings")
+}
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  actorId        String
+  actorType      String   // 'USER' | 'SUPERADMIN' | 'SYSTEM'
+  organizationId String?
+  action         String   // e.g. 'member.invited', 'property.deleted'
+  targetType     String?  // 'User' | 'Property' | 'Organization'
+  targetId       String?
+  metadata       Json?
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, createdAt(sort: Desc)])
+  @@index([actorId, createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
+
+// ─── AUTH (NextAuth.js / Auth.js v5 compatible) ───────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ─── BILLING ──────────────────────────────────────────────
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  organizationId       String             @unique
+  stripeCustomerId     String             @unique
+  stripeSubscriptionId String?            @unique
+  plan                 Plan
+  status               SubscriptionStatus
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@map("subscriptions")
+}
+
+// ─── ENUMS ────────────────────────────────────────────────
+
+enum OrgRole {
+  ADMIN
+  MEMBER
+}
+
+enum OrgStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum Plan {
+  STARTER   // up to 5 members, 20 listings
+  GROWTH    // up to 20 members, 100 listings
+  ENTERPRISE // unlimited
+}
+
+enum PropertyStatus {
+  DRAFT
+  ACTIVE
+  SOLD
+  WITHDRAWN
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CLOSED_WON
+  CLOSED_LOST
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+}
