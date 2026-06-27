@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import { SiteChrome } from '@/components/layout/SiteChrome'
 import { AuthSessionProvider } from '@/components/auth/SessionProvider'
+import { SmoothScroll } from '@/components/providers/SmoothScroll'
 import { ThemeProvider, ThemeApplicator } from '@/context/ThemeContext'
 import { ThemeTransition } from '@/components/ui/ThemeTransition'
 import './globals.css'
@@ -48,6 +49,7 @@ export default function RootLayout({
           <ThemeProvider>
             <ThemeApplicator />
             <ThemeTransition />
+            <SmoothScroll />
             <SiteChrome>{children}</SiteChrome>
           </ThemeProvider>
         </AuthSessionProvider>
