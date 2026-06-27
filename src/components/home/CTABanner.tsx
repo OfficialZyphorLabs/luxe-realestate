@@ -1,9 +1,11 @@
 import Link from 'next/link'
+import { Reveal } from '@/components/ui/Reveal'
 
 export function CTABanner() {
   return (
     <section className="py-stack-lg">
       <div className="page-container">
+        <Reveal>
         <div className="relative bg-primary rounded-[40px] overflow-hidden px-10 py-16 flex flex-col md:flex-row items-center justify-between gap-8">
           {/* Decorative blur accent */}
           <div className="absolute top-0 right-0 w-72 h-72 bg-primary-fixed/10 rounded-full blur-3xl pointer-events-none" />
@@ -18,7 +20,7 @@ export function CTABanner() {
               Ready to list your masterpiece?
             </h2>
             <p className="font-body text-body-md text-on-primary/70 mt-2">
-              Let our experts bring your property to the world's most qualified buyers.
+              Let our experts bring your property to the world&rsquo;s most qualified buyers.
             </p>
           </div>
 
@@ -38,6 +40,7 @@ export function CTABanner() {
             </Link>
           </div>
         </div>
+        </Reveal>
       </div>
     </section>
   )

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { PropertyGrid } from '@/components/property/PropertyGrid'
 import { SectionHeader } from '@/components/ui/SectionHeader'
+import { Reveal } from '@/components/ui/Reveal'
 import type { Property } from '@/types'
 
 const FEATURED_PROPERTIES: Property[] = [
@@ -55,19 +56,21 @@ export function FeaturedListings() {
   return (
     <section className="py-stack-lg">
       <div className="page-container">
-        <SectionHeader
-          eyebrow="Featured Listings"
-          title="Curated for the Discerning Buyer"
-          action={
-            <Link
-              href="/properties"
-              className="flex items-center gap-2 font-body text-label-md text-primary hover:gap-3 transition-standard"
-            >
-              View All Listings
-              <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-            </Link>
-          }
-        />
+        <Reveal>
+          <SectionHeader
+            eyebrow="Featured Listings"
+            title="Curated for the Discerning Buyer"
+            action={
+              <Link
+                href="/properties"
+                className="flex items-center gap-2 font-body text-label-md text-primary hover:gap-3 transition-standard"
+              >
+                View All Listings
+                <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+              </Link>
+            }
+          />
+        </Reveal>
         <PropertyGrid properties={FEATURED_PROPERTIES} />
       </div>
     </section>

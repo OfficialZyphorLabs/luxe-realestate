@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { PropertyGrid } from '@/components/property/PropertyGrid'
 import { PropertyFilterBar } from '@/components/property/PropertyFilterBar'
+import { Reveal } from '@/components/ui/Reveal'
 import { cn } from '@/lib/utils'
 import type { Property, FilterOptions } from '@/types'
 
@@ -119,6 +120,7 @@ export default function PropertiesPage() {
     <div className="pt-24 pb-stack-lg min-h-screen">
       <div className="page-container">
         {/* Page header */}
+        <Reveal>
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 pt-8">
           <div>
             <span className="font-body text-label-md font-semibold uppercase tracking-widest text-on-primary-container">
@@ -128,7 +130,7 @@ export default function PropertiesPage() {
               Exclusive Listings
             </h1>
             <p className="font-body text-body-md text-secondary mt-2">
-              Architectural masterpieces in the world's most sought-after locations.
+              Architectural masterpieces in the world&rsquo;s most sought-after locations.
             </p>
           </div>
 
@@ -162,6 +164,7 @@ export default function PropertiesPage() {
             </button>
           </div>
         </div>
+        </Reveal>
 
         {/* Filter bar */}
         <div className="mb-10">

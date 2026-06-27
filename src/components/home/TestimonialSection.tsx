@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useState } from 'react'
+import { Reveal } from '@/components/ui/Reveal'
 import type { Testimonial } from '@/types'
 
 const TESTIMONIALS: Testimonial[] = [
@@ -32,6 +33,7 @@ export function TestimonialSection() {
   return (
     <section className="py-stack-lg">
       <div className="page-container">
+        <Reveal>
         <div className="flex flex-col lg:flex-row gap-12 items-center">
           {/* Portrait */}
           <div className="relative w-full lg:w-5/12 aspect-[4/5] rounded-2xl overflow-hidden shadow-xl shrink-0">
@@ -98,6 +100,7 @@ export function TestimonialSection() {
             </div>
           </div>
         </div>
+        </Reveal>
       </div>
     </section>
   )
