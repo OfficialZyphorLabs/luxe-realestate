@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import { SiteChrome } from '@/components/layout/SiteChrome'
+import { AuthSessionProvider } from '@/components/auth/SessionProvider'
 import { ThemeProvider, ThemeApplicator } from '@/context/ThemeContext'
 import { ThemeTransition } from '@/components/ui/ThemeTransition'
 import './globals.css'
@@ -43,11 +44,13 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-surface text-on-surface antialiased flex flex-col">
-        <ThemeProvider>
-          <ThemeApplicator />
-          <ThemeTransition />
-          <SiteChrome>{children}</SiteChrome>
-        </ThemeProvider>
+        <AuthSessionProvider>
+          <ThemeProvider>
+            <ThemeApplicator />
+            <ThemeTransition />
+            <SiteChrome>{children}</SiteChrome>
+          </ThemeProvider>
+        </AuthSessionProvider>
       </body>
     </html>
   )

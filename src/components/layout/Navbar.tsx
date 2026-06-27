@@ -7,6 +7,7 @@ import { useScroll, useMotionValueEvent } from 'motion/react'
 import { cn } from '@/lib/utils'
 import { NavDesktopBody, NavMobileBody, MobileMenuPanel } from '@/components/ui/resizable-navbar'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { NavAuthControls } from '@/components/layout/NavAuthControls'
 
 const NAV_LINKS = [
   { href: '/properties', label: 'Listings' },
@@ -76,6 +77,7 @@ export function Navbar() {
             </button>
           )}
           <ThemeToggle visible={visible} />
+          <NavAuthControls visible={visible} />
           <Link
             href="/contact"
             className={cn(
@@ -133,7 +135,8 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
-          <div className="border-t border-on-primary/10 mt-1 pt-3">
+          <div className="border-t border-on-primary/10 mt-1 pt-3 space-y-1">
+            <NavAuthControls visible={visible} variant="mobile" onNavigate={() => setMobileOpen(false)} />
             <Link
               href="/contact"
               onClick={() => setMobileOpen(false)}
