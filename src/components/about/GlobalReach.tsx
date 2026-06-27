@@ -22,7 +22,7 @@ export function GlobalReach() {
             </h2>
             <p className="font-body text-body-md text-on-primary/70 mb-8 max-w-md">
               With offices on four continents, we connect ultra-high-net-worth investors from New York
-              to Dubai. Our network spans the world's most exclusive markets.
+              to Dubai. Our network spans the world&rsquo;s most exclusive markets.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

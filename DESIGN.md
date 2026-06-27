@@ -397,8 +397,14 @@ Production route naming — all lowercase, hyphenated, semantic:
 | Home / Landing | `/` | `app/page.tsx` |
 | Property Listings | `/properties` | `app/properties/page.tsx` |
 | Property Detail | `/properties/[slug]` | `app/properties/[slug]/page.tsx` |
-| About & Agents | `/about` | `app/about/page.tsx` |
+| About | `/about` | `app/about/page.tsx` |
+| Agents Directory | `/agents` | `app/agents/page.tsx` |
 | Contact & Inquiry | `/contact` | `app/contact/page.tsx` |
+
+> **Note:** `/about` tells the brand story and shows a 4-advisor teaser; `/agents`
+> is the full, searchable advisor directory. The nav "Agents" item links to
+> `/agents`, "About" to `/about` — they must use distinct hrefs so only one is
+> highlighted as active at a time.
 
 **Route naming rules:**
 - Use `/properties` not `/listings` or `/product-listing`
@@ -451,7 +457,8 @@ src/
 │   │   └── TestimonialSection.tsx
 │   ├── about/
 │   │   ├── AgentCard.tsx
-│   │   ├── AgentGrid.tsx
+│   │   ├── AgentGrid.tsx          # About-page advisor teaser (first 4)
+│   │   ├── AgentDirectory.tsx     # /agents searchable + region-filterable roster
 │   │   └── GlobalReach.tsx
 │   └── contact/
 │       ├── ContactForm.tsx
@@ -642,9 +649,18 @@ Key icons used across pages:
 1. **Navbar**
 2. **OurStory** — 5/12 + 7/12 split: text with eyebrow "Since 1994" + glass card overlay stat
 3. **CoreValues** — `bg-surface-container-low`, 3-col: Integrity, Discretion, Excellence
-4. **AgentGrid** — 4-col bento: aspect-[3/4] AgentCards
+4. **AgentGrid** — 4-col teaser of advisors; "View All Advisors" → `/agents`
 5. **GlobalReach** — `bg-primary` section: office grid + spinning globe visual
 6. **Footer**
+
+### Agents (`/agents`)
+
+1. **Navbar**
+2. **AgentsHero** — eyebrow + display-lg title + intro + quick stat row (advisors, markets, sales)
+3. **AgentDirectory** — `bg-surface-container-low` filter bar (search + region select) + responsive
+   4-col AgentCard grid + live result count + EmptyState
+4. **JoinTeamCTA** — `bg-primary rounded-[40px]` recruitment banner with two CTAs
+5. **Footer**
 
 ### Contact (`/contact`)
 

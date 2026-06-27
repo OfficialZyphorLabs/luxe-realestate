@@ -11,7 +11,7 @@ import { NavAuthControls } from '@/components/layout/NavAuthControls'
 
 const NAV_LINKS = [
   { href: '/properties', label: 'Listings' },
-  { href: '/about', label: 'Agents' },
+  { href: '/agents', label: 'Agents' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
 ]

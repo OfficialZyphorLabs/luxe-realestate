@@ -30,6 +30,8 @@ export interface Agent {
   role: string
   specialty: string
   imageUrl: string
+  /** Primary market region — used to filter the Agents directory. */
+  region?: string
   phone?: string
   email?: string
   listings?: number
