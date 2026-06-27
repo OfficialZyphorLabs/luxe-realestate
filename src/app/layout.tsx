@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
-import { Navbar } from '@/components/layout/Navbar'
-import { Footer } from '@/components/layout/Footer'
+import { SiteChrome } from '@/components/layout/SiteChrome'
 import { ThemeProvider, ThemeApplicator } from '@/context/ThemeContext'
 import { ThemeTransition } from '@/components/ui/ThemeTransition'
 import './globals.css'
@@ -47,9 +46,7 @@ export default function RootLayout({
         <ThemeProvider>
           <ThemeApplicator />
           <ThemeTransition />
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <SiteChrome>{children}</SiteChrome>
         </ThemeProvider>
       </body>
     </html>
