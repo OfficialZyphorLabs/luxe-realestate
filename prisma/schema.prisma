@@ -42,11 +42,28 @@ model User {
   updatedAt     DateTime  @updatedAt
   isSuperAdmin  Boolean   @default(false)
 
-  memberships Membership[]
-  accounts    Account[]
-  sessions    Session[]
+  memberships         Membership[]
+  accounts            Account[]
+  sessions            Session[]
+  passwordResetTokens PasswordResetToken[]
 
   @@map("users")
+}
+
+// Single-use password-reset tokens. Only the SHA-256 hash of the token is
+// stored (see src/lib/auth/tokens.ts) so a DB leak yields no usable links.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
 }
 
 // Junction: User ↔ Organization with role
