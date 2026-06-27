@@ -10,6 +10,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { AgentDirectory } from '@/components/about/AgentDirectory'
+import { Reveal } from '@/components/ui/Reveal'
 import { AGENTS, AGENT_REGIONS } from '@/lib/data/agents'
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default function AgentsPage() {
       {/* ── Hero ── */}
       <section className="py-stack-lg">
         <div className="page-container">
+          <Reveal>
           <div className="max-w-3xl">
             <span className="font-body text-label-md font-semibold uppercase tracking-widest text-on-primary-container">
               The LuxeReal Collective
@@ -37,8 +39,10 @@ export default function AgentsPage() {
               through the most significant transactions of their lives.
             </p>
           </div>
+          </Reveal>
 
           {/* Quick stats */}
+          <Reveal delay={0.1}>
           <div className="mt-10 flex flex-wrap gap-x-12 gap-y-6">
             <div>
               <p className="font-display text-headline-lg font-semibold text-primary">{AGENTS.length}</p>
@@ -57,6 +61,7 @@ export default function AgentsPage() {
               <p className="font-body text-body-md text-secondary">Lifetime Sales</p>
             </div>
           </div>
+          </Reveal>
         </div>
       </section>
 
@@ -66,6 +71,7 @@ export default function AgentsPage() {
       {/* ── Join the team CTA ── */}
       <section className="py-stack-lg">
         <div className="page-container">
+          <Reveal>
           <div className="relative overflow-hidden rounded-[40px] bg-primary px-8 py-16 text-center md:px-16">
             {/* Soft accent glow */}
             <div
@@ -100,6 +106,7 @@ export default function AgentsPage() {
               </div>
             </div>
           </div>
+          </Reveal>
         </div>
       </section>
     </div>

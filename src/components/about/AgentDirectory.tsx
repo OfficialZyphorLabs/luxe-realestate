@@ -10,6 +10,7 @@
  */
 import { useMemo, useState } from 'react'
 import { AgentCard } from '@/components/about/AgentCard'
+import { Reveal } from '@/components/ui/Reveal'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { AGENTS, AGENT_REGIONS } from '@/lib/data/agents'
@@ -76,8 +77,10 @@ export function AgentDirectory() {
         {/* Grid or empty state */}
         {filtered.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filtered.map((agent) => (
-              <AgentCard key={agent.id} agent={agent} />
+            {filtered.map((agent, i) => (
+              <Reveal key={agent.id} delay={(i % 4) * 0.06}>
+                <AgentCard agent={agent} />
+              </Reveal>
             ))}
           </div>
         ) : (

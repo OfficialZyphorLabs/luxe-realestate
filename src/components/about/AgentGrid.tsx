@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { AgentCard } from './AgentCard'
 import { SectionHeader } from '@/components/ui/SectionHeader'
+import { Reveal } from '@/components/ui/Reveal'
 import { AGENTS } from '@/lib/data/agents'
 import type { Agent } from '@/types'
 
@@ -27,8 +28,10 @@ export function AgentGrid({ agents = AGENTS.slice(0, 4) }: AgentGridProps) {
           }
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {agents.map((agent) => (
-            <AgentCard key={agent.id} agent={agent} />
+          {agents.map((agent, i) => (
+            <Reveal key={agent.id} delay={(i % 4) * 0.08}>
+              <AgentCard agent={agent} />
+            </Reveal>
           ))}
         </div>
       </div>

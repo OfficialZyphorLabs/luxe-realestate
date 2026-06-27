@@ -1,3 +1,5 @@
+import { Reveal } from '@/components/ui/Reveal'
+
 const OFFICES = [
   { city: 'New York', country: 'USA', address: '742 Madison Avenue, 4th Floor' },
   { city: 'London', country: 'UK', address: '25 Mayfair Square, Piccadilly' },
@@ -11,6 +13,7 @@ export function GlobalReach() {
   return (
     <section className="bg-primary py-stack-lg">
       <div className="page-container">
+        <Reveal>
         <div className="flex flex-col lg:flex-row gap-12 items-start">
           {/* Left: Text + offices */}
           <div className="flex-1">
@@ -64,6 +67,7 @@ export function GlobalReach() {
             </div>
           </div>
         </div>
+        </Reveal>
       </div>
     </section>
   )

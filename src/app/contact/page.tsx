@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { ContactForm } from '@/components/contact/ContactForm'
 import { FAQSection } from '@/components/contact/FAQSection'
+import { Reveal } from '@/components/ui/Reveal'
 
 export default function ContactPage() {
   const [sellEmail, setSellEmail] = useState('')
@@ -12,6 +13,7 @@ export default function ContactPage() {
       {/* Contact Hero */}
       <section className="py-stack-lg">
         <div className="page-container">
+          <Reveal>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Left: Contact info */}
             <div className="lg:col-span-5">
@@ -83,12 +85,14 @@ export default function ContactPage() {
               <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-surface/60 to-transparent" />
             </div>
           </div>
+          </Reveal>
         </div>
       </section>
 
       {/* Inquiry Form */}
       <section className="py-stack-lg bg-surface-container-low">
         <div className="page-container">
+          <Reveal>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm">
             {/* Left: dark info panel */}
             <div className="lg:col-span-5 bg-primary p-10 flex flex-col justify-between gap-8">
@@ -124,12 +128,14 @@ export default function ContactPage() {
               <ContactForm />
             </div>
           </div>
+          </Reveal>
         </div>
       </section>
 
       {/* Sell Section */}
       <section className="py-stack-lg">
         <div className="page-container">
+          <Reveal>
           <div className="text-center mb-10">
             <span className="font-body text-label-md font-semibold uppercase tracking-widest text-on-primary-container">
               Sell with Us
@@ -142,10 +148,12 @@ export default function ContactPage() {
               true value.
             </p>
           </div>
+          </Reveal>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Global Visibility card */}
-            <div className="md:col-span-2 bg-surface-container rounded-2xl p-8 flex flex-col gap-4">
+            <Reveal className="md:col-span-2">
+            <div className="bg-surface-container rounded-2xl p-8 flex flex-col gap-4 h-full">
               <div className="w-10 h-10 rounded-xl bg-tertiary-fixed flex items-center justify-center">
                 <span className="material-symbols-outlined text-[20px] text-on-tertiary-fixed">
                   language
@@ -163,9 +171,11 @@ export default function ContactPage() {
                 <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
               </button>
             </div>
+            </Reveal>
 
             {/* Email capture card */}
-            <div className="bg-primary rounded-2xl p-8 flex flex-col gap-5">
+            <Reveal delay={0.1}>
+            <div className="bg-primary rounded-2xl p-8 flex flex-col gap-5 h-full">
               <div>
                 <h3 className="font-display text-headline-md font-semibold text-on-primary">
                   List Your Estate
@@ -188,12 +198,15 @@ export default function ContactPage() {
                 </button>
               </div>
             </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <FAQSection />
+      <Reveal>
+        <FAQSection />
+      </Reveal>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { AgentGrid } from '@/components/about/AgentGrid'
 import { GlobalReach } from '@/components/about/GlobalReach'
+import { Reveal } from '@/components/ui/Reveal'
 
 const CORE_VALUES = [
   {
@@ -29,6 +30,7 @@ export default function AboutPage() {
       {/* Our Story */}
       <section className="py-stack-lg">
         <div className="page-container">
+          <Reveal>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Text */}
             <div className="lg:col-span-5">
@@ -80,12 +82,14 @@ export default function AboutPage() {
               />
             </div>
           </div>
+          </Reveal>
         </div>
       </section>
 
       {/* Core Values */}
       <section className="bg-surface-container-low py-stack-lg">
         <div className="page-container">
+          <Reveal>
           <div className="text-center mb-12">
             <span className="font-body text-label-md font-semibold uppercase tracking-widest text-on-primary-container">
               What We Stand For
@@ -97,25 +101,25 @@ export default function AboutPage() {
               The principles that guide every decision we make and every relationship we build.
             </p>
           </div>
+          </Reveal>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {CORE_VALUES.map((value) => (
-              <div
-                key={value.title}
-                className="bg-surface-container-lowest rounded-2xl p-8 text-center flex flex-col items-center gap-4 hover:-translate-y-2 transition-standard"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-tertiary-fixed flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[28px] text-on-tertiary-fixed">
-                    {value.icon}
-                  </span>
+            {CORE_VALUES.map((value, i) => (
+              <Reveal key={value.title} delay={i * 0.1}>
+                <div className="bg-surface-container-lowest rounded-2xl p-8 text-center flex flex-col items-center gap-4 hover:-translate-y-2 transition-standard h-full">
+                  <div className="w-14 h-14 rounded-2xl bg-tertiary-fixed flex items-center justify-center">
+                    <span className="material-symbols-outlined text-[28px] text-on-tertiary-fixed">
+                      {value.icon}
+                    </span>
+                  </div>
+                  <h3 className="font-display text-headline-md font-semibold text-primary">
+                    {value.title}
+                  </h3>
+                  <p className="font-body text-body-md text-secondary leading-relaxed">
+                    {value.description}
+                  </p>
                 </div>
-                <h3 className="font-display text-headline-md font-semibold text-primary">
-                  {value.title}
-                </h3>
-                <p className="font-body text-body-md text-secondary leading-relaxed">
-                  {value.description}
-                </p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
