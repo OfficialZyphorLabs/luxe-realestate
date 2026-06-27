@@ -33,19 +33,19 @@ function AcceptInvite() {
   const router = useRouter()
   const token = useSearchParams().get('token') ?? ''
 
-  const [status, setStatus] = useState<'loading' | 'invalid' | 'ready'>('loading')
+  // Lazily seed status from token presence so we never setState synchronously in
+  // the effect for the "no token" case.
+  const [status, setStatus] = useState<'loading' | 'invalid' | 'ready'>(token ? 'loading' : 'invalid')
   const [info, setInfo] = useState<InviteInfo | null>(null)
   const [name, setName] = useState('')
   const [password, setPassword] = useState('')
   const [formError, setFormError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  // Validate the token once on mount.
+  // Validate the token once on mount. The no-token case is handled by the lazy
+  // initial state above, so the effect only runs the async lookup.
   useEffect(() => {
-    if (!token) {
-      setStatus('invalid')
-      return
-    }
+    if (!token) return
     let cancelled = false
     ;(async () => {
       try {

@@ -9,7 +9,7 @@
  * until the user edits it manually, and its availability is checked with a
  * debounced call to /api/auth/check-slug.
  */
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
@@ -39,17 +39,17 @@ export default function RegisterPage() {
   // Keep slug in sync with org name until the user takes control of it.
   const derivedSlug = slugEdited ? form.orgSlug : slugify(form.orgName)
 
-  // Debounced availability check whenever the effective slug changes.
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Debounced availability check whenever the effective slug changes. All status
+  // updates happen inside the timer (never synchronously in the effect body) so
+  // typing doesn't trigger cascading renders.
   useEffect(() => {
     const slug = derivedSlug
     if (!slug || slug.length < 3) {
-      setSlugStatus('idle')
-      return
+      const t = setTimeout(() => setSlugStatus('idle'), 0)
+      return () => clearTimeout(t)
     }
-    setSlugStatus('checking')
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(async () => {
+    const handle = setTimeout(async () => {
+      setSlugStatus('checking')
       try {
         const res = await fetch(`/api/auth/check-slug?slug=${encodeURIComponent(slug)}`)
         const data = await res.json()
@@ -63,9 +63,7 @@ export default function RegisterPage() {
         setSlugStatus('idle')
       }
     }, 400)
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current)
-    }
+    return () => clearTimeout(handle)
   }, [derivedSlug])
 
   function update<K extends keyof typeof form>(key: K, value: string) {

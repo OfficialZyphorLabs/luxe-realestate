@@ -44,21 +44,17 @@ export const authConfig = {
 
   callbacks: {
     /**
-     * Copies resolved claims onto the token. On sign-in (`user` present) the
-     * full config in index.ts has already attached the enriched fields to
-     * `user`; here we just persist them. The `update` trigger lets the client
-     * call `session.update()` to refresh memberships after, e.g., accepting an
-     * invite — without forcing a full re-login.
+     * Base (DB-free) token copier. The full config in index.ts overrides this
+     * with a DB-backed version that loads claims at sign-in and on `update`. This
+     * variant is what the proxy uses: it only ever runs in decode mode (no
+     * `user`), so it simply returns the already-populated token.
      */
-    jwt({ token, user, trigger, session }) {
+    jwt({ token, user }) {
       if (user) {
         token.uid = user.id as string
         token.isSuperAdmin = user.isSuperAdmin ?? false
         token.avatarUrl = user.avatarUrl ?? null
         token.memberships = user.memberships ?? []
-      }
-      if (trigger === 'update' && session?.memberships) {
-        token.memberships = session.memberships
       }
       return token
     },

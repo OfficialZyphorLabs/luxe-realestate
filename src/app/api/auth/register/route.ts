@@ -26,7 +26,7 @@ import { sendWelcomeEmail } from '@/lib/email'
 export async function POST(req: Request) {
   return handleRoute(async () => {
     // 1. Throttle by client IP.
-    const { success, retryAfter } = await enforceRateLimit('auth', `register:${getClientIp(req)}`)
+    const { success } = await enforceRateLimit('auth', `register:${getClientIp(req)}`)
     if (!success) {
       return fail('Too many attempts. Please try again shortly.', 429, { code: 'RATE_LIMITED' })
     }

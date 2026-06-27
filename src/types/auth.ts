@@ -43,7 +43,9 @@ declare module 'next-auth' {
   }
 }
 
-declare module 'next-auth/jwt' {
+// Augment the source module that actually declares `JWT`. `next-auth/jwt`
+// re-exports `@auth/core/jwt`, so this merge is what both see.
+declare module '@auth/core/jwt' {
   /** Custom claims persisted inside the signed JWT. */
   interface JWT {
     uid: string

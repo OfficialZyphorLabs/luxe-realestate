@@ -83,31 +83,36 @@ export async function POST(req: Request) {
       select: { id: true },
     })
 
-    // New users must supply a name + password to create their account.
-    if (!existingUser && (!name || !password)) {
-      throw new HttpError(400, 'Name and password are required to create your account.', 'NEED_PROFILE')
-    }
-
+    // New users must supply a name + password. Resolve their create payload now
+    // (with the hash) so the value is fully typed inside the transaction — no
+    // non-null assertions needed.
     const orgId = invitation.organization.id
     const userCreated = !existingUser
+    let newUserData: { email: string; name: string; passwordHash: string; emailVerified: Date } | undefined
+
+    if (!existingUser) {
+      if (!name || !password) {
+        throw new HttpError(400, 'Name and password are required to create your account.', 'NEED_PROFILE')
+      }
+      newUserData = {
+        email: invitation.email,
+        name,
+        passwordHash: await hashPassword(password),
+        emailVerified: new Date(), // proven via the emailed token
+      }
+    }
 
     await prisma.$transaction(async (tx) => {
       let userId: string
 
       if (existingUser) {
         userId = existingUser.id
-      } else {
-        const passwordHash = await hashPassword(password!)
-        const created = await tx.user.create({
-          data: {
-            email: invitation.email,
-            name: name!,
-            passwordHash,
-            emailVerified: new Date(), // proven via the emailed token
-          },
-          select: { id: true },
-        })
+      } else if (newUserData) {
+        const created = await tx.user.create({ data: newUserData, select: { id: true } })
         userId = created.id
+      } else {
+        // Unreachable: guarded above. Keeps `userId` definitely assigned.
+        throw new HttpError(400, 'Invalid invitation state.', 'INVALID_STATE')
       }
 
       // Idempotent membership (skip if somehow already present).
