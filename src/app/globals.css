@@ -207,6 +207,27 @@ html {
   scroll-behavior: smooth;
 }
 
+/*
+ * Accessibility: honor the OS "reduce motion" setting site-wide.
+ * Near-instantly collapses CSS transitions/animations and disables smooth
+ * scroll. JS-driven motion (Framer Motion) is handled separately via the
+ * `useReducedMotion()` hook inside each animated component, so those simply
+ * render in their final state.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 body {
   background-color: #fcf9f8;
   color: #1b1c1c;
