@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from 'next/font/google'
 import { SiteChrome } from '@/components/layout/SiteChrome'
 import { AuthSessionProvider } from '@/components/auth/SessionProvider'
 import { SmoothScroll } from '@/components/providers/SmoothScroll'
+import { Preloader } from '@/components/ui/Preloader'
 import { ThemeProvider, ThemeApplicator } from '@/context/ThemeContext'
 import { ThemeTransition } from '@/components/ui/ThemeTransition'
 import './globals.css'
@@ -45,6 +46,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-surface text-on-surface antialiased flex flex-col">
+        <Preloader />
         <AuthSessionProvider>
           <ThemeProvider>
             <ThemeApplicator />

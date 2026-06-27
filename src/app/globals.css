@@ -179,6 +179,60 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/*
+ * First-load preloader (components/ui/Preloader.tsx).
+ * Pure CSS so it self-dismisses even with JS disabled (animation-fill-mode:
+ * forwards → ends hidden + non-interactive). It is server-rendered, so it covers
+ * content from the first paint (no flash), and the global reduced-motion guard
+ * collapses the veil to ~instant. Only runs on full page loads — client
+ * navigations don't remount the layout, so it never replays mid-session.
+ */
+@keyframes preloader-veil {
+  0%,
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+@keyframes preloader-mark {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes preloader-line {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-surface);
+  animation: preloader-veil 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.preloader__mark {
+  animation: preloader-mark 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.preloader__line {
+  transform-origin: left;
+  animation: preloader-line 1.2s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   user-select: none;
