@@ -27,15 +27,7 @@ export function Navbar() {
     setVisible(latest > threshold)
   })
 
-  const linkClass = (href: string) =>
-    cn(
-      'font-body text-label-md font-semibold transition-colors duration-200',
-      visible
-        ? 'text-on-primary/80 hover:text-on-primary'
-        : pathname === href || pathname.startsWith(href + '/')
-          ? 'text-primary border-b-2 border-primary pb-0.5'
-          : 'text-secondary hover:text-primary'
-    )
+  const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
 
   return (
     <header className="fixed inset-x-0 top-0 z-50" aria-label="Main navigation">
@@ -55,13 +47,38 @@ export function Navbar() {
         {/* Centered nav links */}
         <nav className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <ul className="flex items-center gap-8 pointer-events-auto">
-            {NAV_LINKS.map((link) => (
-              <li key={`${link.href}-${link.label}`}>
-                <Link href={link.href} className={linkClass(link.href)}>
-                  {link.label}
-                </Link>
-              </li>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const active = isActive(link.href)
+              return (
+                <li key={`${link.href}-${link.label}`}>
+                  <Link
+                    href={link.href}
+                    className={cn(
+                      'group relative pb-1 font-body text-label-md font-semibold transition-colors duration-200',
+                      visible
+                        ? active
+                          ? 'text-on-primary'
+                          : 'text-on-primary/80 hover:text-on-primary'
+                        : active
+                          ? 'text-primary'
+                          : 'text-secondary hover:text-primary'
+                    )}
+                  >
+                    {link.label}
+                    {/* Animated underline: full when active, grows left→right on hover.
+                        Pure scaleX (GPU); collapses under prefers-reduced-motion. */}
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        'pointer-events-none absolute bottom-0 left-0 right-0 h-0.5 origin-left rounded-full transition-transform duration-300 ease-out',
+                        visible ? 'bg-on-primary' : 'bg-primary',
+                        active ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                      )}
+                    />
+                  </Link>
+                </li>
+              )
+            })}
           </ul>
         </nav>
 
