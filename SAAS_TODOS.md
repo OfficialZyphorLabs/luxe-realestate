@@ -43,63 +43,89 @@
 
 ---
 
-## Phase 1 — Authentication System
+## Phase 1 — Authentication System ✅ COMPLETE (code)
 **Goal:** Users can register, log in, accept invites, and sessions carry org membership claims.
 **Duration estimate:** 3–5 days
 
+> **Status:** Implemented and verified (`tsc --noEmit`, `eslint`, `next build` all pass).
+> Awaiting a provisioned database to run end-to-end (see "Required from you" at the
+> bottom of this section). Notable deviations driven by the stack:
+> - **Next.js 16 renamed `middleware.ts` → `proxy.ts`** — the tenant resolver lives
+>   at `src/proxy.ts` and exports a `proxy` (the `auth()` wrapper).
+> - Server-session helpers live at `src/lib/auth/session.ts` (not `src/lib/auth.ts`).
+> - Invitation/reset tokens are stored **hashed** (SHA-256); the raw token only
+>   travels in the email link.
+> - Transactional emails use inlined HTML templates; React Email is deferred to
+>   Phase 6 per the original plan.
+
 ### NextAuth Configuration
-- [ ] Create `src/app/api/auth/[...nextauth]/route.ts`
-- [ ] Configure Credentials provider (email + password)
-- [ ] Configure Google OAuth provider
-- [ ] Build custom JWT callback — embed `isSuperAdmin` and `memberships[]` into token
-- [ ] Build custom session callback — expose enriched user from JWT
-- [ ] Configure Prisma adapter for NextAuth (account, session, verification token tables)
+- [x] Create `src/app/api/auth/[...nextauth]/route.ts`
+- [x] Configure Credentials provider (email + password) — timing-safe `authorize`
+- [x] Configure Google OAuth provider (auto-enabled when `AUTH_GOOGLE_*` are set)
+- [x] Build custom JWT callback — embed `isSuperAdmin` and `memberships[]` into token
+- [x] Build custom session callback — expose enriched user from JWT
+- [x] Configure Prisma adapter for NextAuth (account, session, verification token tables)
 
 ### Registration
-- [ ] Create registration page: `/register`
-  - Fields: Full Name, Email, Password, Organization Name, Organization Slug (auto-derived)
-  - Real-time slug availability check (debounced API call)
-  - Password strength indicator
-- [ ] Create `POST /api/auth/register` route
-  - Validate inputs with Zod
-  - Check email + slug uniqueness
-  - Hash password with bcryptjs
-  - DB transaction: create User → Organization → Membership (ADMIN) → OrgSettings → Subscription (trial)
-  - Send welcome email via Resend
-  - Return session
+- [x] Create registration page: `/register`
+  - [x] Fields: Full Name, Email, Password, Organization Name, Organization Slug (auto-derived)
+  - [x] Real-time slug availability check (debounced API call)
+  - [x] Password strength indicator
+- [x] Create `POST /api/auth/register` route
+  - [x] Validate inputs with Zod
+  - [x] Check email + slug uniqueness (+ reserved-slug list)
+  - [x] Hash password with bcryptjs
+  - [x] DB transaction: create User → Organization → OrgSettings → Subscription (trial) → Membership (ADMIN)
+  - [x] Send welcome email via Resend (best-effort)
+  - [x] Auto sign-in after registration
 
 ### Login
-- [ ] Create login page: `/login`
-- [ ] Email/password form with error handling
-- [ ] "Continue with Google" button
-- [ ] Forgot password link (Phase 1 stub — full flow in Phase 2)
-- [ ] Redirect to `/org/[slug]/dashboard` after login
+- [x] Create login page: `/login`
+- [x] Email/password form with error handling (generic, enumeration-safe)
+- [x] "Continue with Google" button
+- [x] Forgot password link (full flow built — not a stub)
+- [x] Redirect to `/org/[slug]/dashboard` after login
 
 ### Invitation System
-- [ ] Create `POST /api/org/[slug]/invite` — generate invitation token, store in DB, send email
-- [ ] Create invitation email template (React Email)
-- [ ] Create `/invite/accept?token=...` page
-  - Validate token (exists, not expired, not already accepted)
-  - If user exists → create membership, mark accepted, redirect to dashboard
-  - If new user → show password-set form, create user + membership, redirect to dashboard
-- [ ] Token expiry: 48 hours
-- [ ] Re-send invite endpoint
+- [x] Create `POST /api/org/[slug]/invite` — hashed token, RBAC-gated (members:invite), rate-limited
+- [x] Create invitation email template (inlined HTML; React Email deferred to Phase 6)
+- [x] Create `/invite/accept?token=...` page
+  - [x] Validate token (exists, not expired, not already accepted)
+  - [x] If user exists → create membership, mark accepted, sign in → dashboard
+  - [x] If new user → name + password form, create user + membership → dashboard
+- [x] Token expiry: 48 hours
+- [x] Re-send invite (same endpoint replaces any pending invite — idempotent)
 
 ### Password Reset (complete flow)
-- [ ] Create `/forgot-password` page
-- [ ] Create `POST /api/auth/forgot-password` — generate reset token, send email
-- [ ] Create `/reset-password?token=...` page
-- [ ] Create `POST /api/auth/reset-password` — validate token, update password, invalidate token
+- [x] Create `/forgot-password` page
+- [x] Create `POST /api/auth/forgot-password` — hashed reset token, generic response
+- [x] Create `/reset-password?token=...` page
+- [x] Create `POST /api/auth/reset-password` — validate token, update password, invalidate token
 
-### Middleware (Tenant Resolution)
-- [ ] Create `middleware.ts` at project root
-  - Protect `/org/[slug]/*` — require authenticated session
-  - Verify user is a member of the org from the slug
-  - Protect `/superadmin/*` — require `isSuperAdmin === true`
-  - Set `x-org-id` header for downstream route handlers
-  - Redirect unauthenticated users to `/login?callbackUrl=...`
-- [ ] Create `src/lib/auth.ts` — `getServerSession` wrapper with type-safety
-- [ ] Create `src/lib/permissions.ts` — `can()` helper (see `SAAS_ARCHITECTURE.md §5`)
+### Proxy / Middleware (Tenant Resolution) — `src/proxy.ts`
+- [x] Create `proxy.ts` (Next.js 16 replacement for `middleware.ts`)
+  - [x] Protect `/org/[slug]/*` — require authenticated session
+  - [x] Verify user is a member of the org from the slug
+  - [x] Protect `/superadmin/*` — require `isSuperAdmin === true`
+  - [x] Set `x-org-id` / `x-org-slug` headers for downstream route handlers
+  - [x] Redirect unauthenticated users to `/login?callbackUrl=...`
+- [x] Create `src/lib/auth/session.ts` — typed `getSession`/`requireAuth`/`requireOrgAccess`
+- [x] Create `src/lib/permissions.ts` — `can()` helper (see `SAAS_ARCHITECTURE.md §5`)
+
+### Extra hardening added this phase
+- [x] `src/lib/rate-limit.ts` — Upstash sliding-window limits on register/login/reset/invite
+- [x] `src/lib/api.ts` — uniform JSON error envelope; never leaks internals
+- [x] Bcrypt timing-safe login (decoy hash) to defeat user-enumeration via timing
+
+### Required from you before this phase can run end-to-end
+1. Provision PostgreSQL (Neon.tech recommended) and set `DATABASE_URL` in `.env.local`.
+2. Set `AUTH_SECRET` (`openssl rand -base64 32`) and `AUTH_URL=http://localhost:3000`.
+3. (Optional) `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` to enable Google sign-in.
+4. (Optional) `RESEND_API_KEY` to actually send email (otherwise it logs to console).
+5. (Optional) `UPSTASH_REDIS_REST_URL` / `_TOKEN` to enforce rate limits.
+6. Run the migration for the new `image` column + `password_reset_tokens` table:
+   `npx prisma migrate dev --name auth_phase1`
+7. (If not already) apply RLS + seed: `psql $DATABASE_URL -f prisma/rls.sql` then `npx prisma db seed`.
 
 ---
 
