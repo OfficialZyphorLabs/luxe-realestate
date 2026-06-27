@@ -36,7 +36,8 @@ model User {
   email         String    @unique
   name          String?
   passwordHash  String?   // null for OAuth-only users
-  avatarUrl     String?
+  avatarUrl     String?   // app-managed avatar (uploads); takes priority in UI
+  image         String?   // OAuth profile picture, written by the NextAuth adapter
   emailVerified DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
