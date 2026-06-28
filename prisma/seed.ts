@@ -1,6 +1,10 @@
+import { loadEnvConfig } from '@next/env'
 import { PrismaClient } from '../src/generated/prisma'
 import { PrismaPg } from '@prisma/adapter-pg'
 import bcrypt from 'bcryptjs'
+
+// tsx doesn't auto-load .env.local — load it the same way Next/Prisma config do.
+loadEnvConfig(process.cwd())
 
 const connectionString = process.env.DATABASE_URL
 if (!connectionString) {
