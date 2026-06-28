@@ -5,6 +5,7 @@
  * boundary; Postgres RLS is the backstop). Called only from Server Components
  * and Server Actions — never the client.
  */
+import { cache } from 'react'
 import { prisma } from '@/lib/prisma'
 import type { Plan } from '@/generated/prisma'
 
@@ -27,8 +28,12 @@ export const PLAN_PRICES: Record<Plan, string> = {
   ENTERPRISE: 'Custom',
 }
 
-/** Org core record + settings, subscription, and entity counts for a slug. */
-export async function getOrgBySlug(slug: string) {
+/**
+ * Org core record + settings, subscription, and entity counts for a slug.
+ * Wrapped in React `cache()` so the layout and the page in a single request
+ * share one query instead of hitting the DB twice.
+ */
+export const getOrgBySlug = cache(async (slug: string) => {
   return prisma.organization.findUnique({
     where: { slug },
     include: {
@@ -37,7 +42,7 @@ export async function getOrgBySlug(slug: string) {
       _count: { select: { memberships: true, properties: true, leads: true } },
     },
   })
-}
+})
 
 /** Aggregated metrics + recent activity for the dashboard home. */
 export async function getOrgOverview(orgId: string) {
