@@ -15,6 +15,8 @@ import { RoleBadge } from '@/components/dashboard/RoleBadge'
 import { EmptyState } from '@/components/dashboard/EmptyState'
 import { DataTable, type Column } from '@/components/dashboard/DataTable'
 import { InviteMemberButton } from '@/components/dashboard/org/InviteMemberButton'
+import { MemberRowActions } from '@/components/dashboard/org/MemberRowActions'
+import { CancelInviteButton } from '@/components/dashboard/org/CancelInviteButton'
 import { formatDate, formatRelativeTime } from '@/lib/format'
 
 type MemberRow = Awaited<ReturnType<typeof getOrgMembers>>[number]
@@ -56,6 +58,23 @@ export default async function OrgMembersPage({ params }: { params: Promise<{ slu
     },
   ]
 
+  if (isAdmin) {
+    columns.push({
+      key: 'actions',
+      header: <span className="sr-only">Actions</span>,
+      align: 'right',
+      render: (m) => (
+        <MemberRowActions
+          slug={slug}
+          membershipId={m.id}
+          memberName={m.user.name ?? m.user.email}
+          currentRole={m.role}
+          isSelf={m.userId === session.user.id}
+        />
+      ),
+    })
+  }
+
   return (
     <>
       <PageHeader
@@ -82,7 +101,10 @@ export default async function OrgMembersPage({ params }: { params: Promise<{ slu
                     Expires {formatRelativeTime(inv.expiresAt)}
                   </p>
                 </div>
-                <RoleBadge role={inv.role} />
+                <div className="flex items-center gap-3">
+                  <RoleBadge role={inv.role} />
+                  <CancelInviteButton slug={slug} invitationId={inv.id} />
+                </div>
               </li>
             ))}
           </ul>
