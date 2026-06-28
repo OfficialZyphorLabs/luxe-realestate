@@ -30,6 +30,9 @@ export function Modal({ open, onClose, title, description, children, footer, siz
   const reduce = useReducedMotion()
   const [mounted, setMounted] = useState(false)
 
+  // Canonical client-mount gate: the server must render null before createPortal
+  // touches document.body. This one-shot setState is intentional.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), [])
 
   // Escape to close + body scroll lock while open.

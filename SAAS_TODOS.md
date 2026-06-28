@@ -178,6 +178,17 @@
 **Goal:** Build all dashboard pages with correct role-gating and data display.
 **Duration estimate:** 5–8 days
 
+> **Status: ✅ Built.** Org dashboard (home, listings/leads placeholders, members
+> with invite + role/remove server actions, settings, billing, analytics, profile)
+> and the SuperAdmin portal (overview, organizations list + detail, users, audit
+> log, feature-flags & settings placeholders) are live, all role-gated via
+> `requireOrgAccess`/`requireSuperAdmin` + `can()`. Reads go through server-side
+> data-access layers (`lib/data/dashboard.ts`, `lib/data/platform.ts`); mutations
+> are Server Actions. Shared primitives live in `components/dashboard/`.
+> **Deferred to their owning phases:** listings/leads CRUD (Phase 4), token-based
+> impersonation + audit-log writes + logo upload (Phase 2), Stripe self-serve
+> billing (Phase 5), feature-flag + platform-settings backends (later).
+
 ### Layout & Shell
 - [ ] Create dashboard layout: `src/app/org/[slug]/layout.tsx`
   - Sidebar navigation (collapsible)

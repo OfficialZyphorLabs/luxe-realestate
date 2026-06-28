@@ -401,6 +401,19 @@ Production route naming — all lowercase, hyphenated, semantic:
 | Agents Directory | `/agents` | `app/agents/page.tsx` |
 | Contact & Inquiry | `/contact` | `app/contact/page.tsx` |
 
+**Authenticated app routes (Phase 1+3)** — these render their own sidebar shell
+(no marketing Navbar/Footer; see `components/layout/SiteChrome.tsx`):
+
+| Area | Route | Notes |
+|---|---|---|
+| Auth | `/login`, `/register`, `/forgot-password`, `/reset-password`, `/invite/accept` | Full-screen auth shell |
+| Org dashboard | `/org/[slug]/{dashboard,listings,leads,members,analytics,settings,billing,profile}` | Role-aware sidebar; `settings`/`billing` are admin-only |
+| SuperAdmin | `/superadmin`, `/superadmin/{organizations,organizations/[orgId],users,audit-log,feature-flags,settings}` | Distinct navy "Platform Control" shell |
+
+Dashboard UI primitives live in `components/dashboard/` (StatCard, DataTable,
+RoleBadge, StatusBadge, MemberAvatar, EmptyState, Modal, ConfirmDialog,
+PlanUsageMeter, ImpersonationBanner, BarChart, PageHeader).
+
 > **Note:** `/about` tells the brand story and shows a 4-advisor teaser; `/agents`
 > is the full, searchable advisor directory. The nav "Agents" item links to
 > `/agents`, "About" to `/about` — they must use distinct hrefs so only one is
