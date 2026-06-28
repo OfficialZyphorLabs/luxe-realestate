@@ -100,6 +100,55 @@ export async function getOrgMembers(orgId: string) {
   })
 }
 
+/**
+ * Aggregates for the analytics page: lead + listing status breakdowns and a
+ * 6-month lead trend. The trend is bucketed in JS (small volumes; avoids a raw
+ * date_trunc query).
+ */
+export async function getOrgAnalytics(orgId: string) {
+  const since = new Date()
+  since.setMonth(since.getMonth() - 5)
+  since.setDate(1)
+  since.setHours(0, 0, 0, 0)
+
+  const [leadsByStatus, listingsByStatus, recentLeadDates] = await Promise.all([
+    prisma.lead.groupBy({ by: ['status'], where: { organizationId: orgId }, _count: { _all: true } }),
+    prisma.property.groupBy({
+      by: ['status'],
+      where: { organizationId: orgId },
+      _count: { _all: true },
+    }),
+    prisma.lead.findMany({
+      where: { organizationId: orgId, createdAt: { gte: since } },
+      select: { createdAt: true },
+    }),
+  ])
+
+  // Build the last 6 month buckets (oldest → newest).
+  const months: { key: string; label: string; value: number }[] = []
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date()
+    d.setMonth(d.getMonth() - i)
+    months.push({
+      key: `${d.getFullYear()}-${d.getMonth()}`,
+      label: d.toLocaleString('en-US', { month: 'short' }),
+      value: 0,
+    })
+  }
+  const index = new Map(months.map((m, i) => [m.key, i]))
+  for (const { createdAt } of recentLeadDates) {
+    const key = `${createdAt.getFullYear()}-${createdAt.getMonth()}`
+    const i = index.get(key)
+    if (i !== undefined) months[i].value += 1
+  }
+
+  return {
+    leadsByStatus: leadsByStatus.map((r) => ({ status: r.status, count: r._count._all })),
+    listingsByStatus: listingsByStatus.map((r) => ({ status: r.status, count: r._count._all })),
+    leadsByMonth: months,
+  }
+}
+
 /** Outstanding (unaccepted, unexpired) invitations for the org. */
 export async function getPendingInvitations(orgId: string) {
   return prisma.invitation.findMany({
