@@ -40,9 +40,27 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {/* Warm up the font connections so the icon font arrives sooner. */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* `display=block` renders icon glyphs invisibly (not as fallback ligature
+            text like "location_on") until the font loads — kills the FOUT. The two
+            Next lint rules below target *text* fonts: `block` is the right choice for
+            a ligature icon font, and the link lives in the root layout so it loads
+            site-wide (not per-page). */}
+        {/* eslint-disable-next-line @next/next/google-font-display, @next/next/no-page-custom-font */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
           rel="stylesheet"
+        />
+        {/* Synchronous guard: add `fonts-loading` to <html> before first paint and
+            remove it once Material Symbols is ready (CSS hides icon boxes meanwhile).
+            No-JS safe — if this never runs, icons fall back to display=block. The 3s
+            timeout guarantees icons are never stuck hidden. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var d=document.documentElement;d.classList.add('fonts-loading');function done(){d.classList.remove('fonts-loading')}if(document.fonts&&document.fonts.load){document.fonts.load("24px 'Material Symbols Outlined'").then(done).catch(done);setTimeout(done,3000)}else{done()}})();`,
+          }}
         />
       </head>
       <body className="min-h-screen bg-surface text-on-surface antialiased flex flex-col">

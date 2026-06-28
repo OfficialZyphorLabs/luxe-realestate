@@ -250,6 +250,21 @@
   font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
+/*
+ * Icon-font FOUT guard. While `fonts-loading` is on <html> (set by the inline
+ * script in layout.tsx until Material Symbols loads), hide the ligature text and
+ * pin each icon to a 1em box so the long fallback word ("location_on") can't
+ * show or reflow. Scoped to the loading state only, so normal icon rendering is
+ * untouched afterward. Removed automatically once the font is ready (and on
+ * no-JS, the class is never added — display:block handles the fallback).
+ */
+.fonts-loading .material-symbols-outlined {
+  visibility: hidden;
+  display: inline-block;
+  width: 1em;
+  overflow: hidden;
+}
+
 /* === BASE === */
 *,
 *::before,
