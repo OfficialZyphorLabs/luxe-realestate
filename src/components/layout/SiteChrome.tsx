@@ -22,8 +22,20 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 
-/** Route prefixes that render without the public site chrome. */
-const CHROMELESS_PREFIXES = ['/login', '/register', '/forgot-password', '/reset-password', '/invite']
+/**
+ * Route prefixes that render without the public marketing chrome (Navbar/Footer).
+ * Auth screens own the full viewport; the org & superadmin dashboards render
+ * their own sidebar shell (see app/org/[slug]/layout.tsx, app/superadmin/layout.tsx).
+ */
+const CHROMELESS_PREFIXES = [
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/invite',
+  '/org',
+  '/superadmin',
+]
 
 function isChromeless(pathname: string): boolean {
   return CHROMELESS_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))
