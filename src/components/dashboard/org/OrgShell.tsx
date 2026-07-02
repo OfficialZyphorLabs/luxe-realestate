@@ -11,6 +11,7 @@ import Link from 'next/link'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { OrgSidebarNav } from './OrgSidebarNav'
 import { UserMenu } from './UserMenu'
+import { ImpersonationBanner } from '@/components/dashboard/ImpersonationBanner'
 import { orgHref } from '@/lib/dashboard-nav'
 
 interface OrgShellProps {
@@ -20,6 +21,8 @@ interface OrgShellProps {
   isAdmin: boolean
   user: { name: string | null; email: string; avatarUrl: string | null }
   children: React.ReactNode
+  /** Set when a SuperAdmin is viewing this org in impersonation mode. */
+  impersonating?: boolean
 }
 
 /** Brand + org identity block shown at the top of the sidebar. */
@@ -40,7 +43,7 @@ function SidebarHeader({ orgName, planLabel }: { orgName: string; planLabel: str
   )
 }
 
-export function OrgShell({ slug, orgName, planLabel, isAdmin, user, children }: OrgShellProps) {
+export function OrgShell({ slug, orgName, planLabel, isAdmin, user, children, impersonating }: OrgShellProps) {
   const reduce = useReducedMotion()
   const [drawerOpen, setDrawerOpen] = useState(false)
 
@@ -90,6 +93,7 @@ export function OrgShell({ slug, orgName, planLabel, isAdmin, user, children }: 
 
       {/* ── Main column ── */}
       <div className="flex min-h-screen flex-col lg:pl-64">
+        {impersonating && <ImpersonationBanner orgName={orgName} />}
         <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-outline-variant/20 bg-surface/80 px-4 py-3 backdrop-blur-md lg:px-8">
           <button
             type="button"
