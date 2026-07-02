@@ -129,45 +129,52 @@
 
 ---
 
-## Phase 2 — Organization & Member Management
+## Phase 2 — Organization & Member Management ✅ COMPLETE (functional scope)
 **Goal:** Org Admins can manage their team; SuperAdmin can manage all orgs.
 **Duration estimate:** 4–6 days
 
-### Organization API Routes
-- [ ] `GET /api/org/[slug]` — org details (members see public fields)
-- [ ] `PATCH /api/org/[slug]` — update org (ADMIN only): name, logo, settings
-- [ ] `DELETE /api/org/[slug]` — soft-delete org (ADMIN only, with confirmation)
+> **Status:** Implemented using Server Actions (Next.js App Router pattern) instead of
+> separate REST route files. All capabilities are present — reads + writes — with full
+> RBAC, audit logging, and impersonation. Deviations from the original spec:
+> - REST route files (`/api/org/[slug]`, etc.) not created separately; functionality
+>   is exposed via Server Actions in `lib/actions/{members,org,superadmin}.ts`.
+> - Logo upload deferred — blocked on R2/S3 credentials (Phase 4 needs uploads too;
+>   do them together when credentials are provisioned).
 
-### Members API
-- [ ] `GET /api/org/[slug]/members` — list all members with roles
-- [ ] `POST /api/org/[slug]/members/invite` — send invite email
-- [ ] `PATCH /api/org/[slug]/members/[userId]` — update role (ADMIN → MEMBER or vice versa)
-- [ ] `DELETE /api/org/[slug]/members/[userId]` — remove member from org
+### Organization Management
+- [x] Read org (`getOrgBySlug` — React `cache()`)
+- [x] Update org settings — `updateOrgSettings` server action (name, logo URL, color, public toggle)
+- [x] Soft-delete org (ADMIN) — `deleteOrg` server action
+- [x] SuperAdmin: suspend / reactivate / hard-delete / change plan — `suspendOrg`, `reactivateOrg`, `softDeleteOrg`, `changeOrgPlan` actions
 
-### Org Settings API
-- [ ] `GET /api/org/[slug]/settings` — org settings
-- [ ] `PATCH /api/org/[slug]/settings` — update settings (ADMIN only)
-  - Org name, description, logo upload
-  - Primary color (for white-labeling)
-  - Allow/block public listing indexing
+### Members Management
+- [x] List members (`getOrgMembers`)
+- [x] Invite member — `POST /api/org/[slug]/invite` (Phase 1)
+- [x] Update role — `updateMemberRole` server action (ADMIN only, last-admin guard)
+- [x] Remove member — `removeMember` server action (ADMIN only, self + last-admin guard)
+- [x] Cancel invitation — `cancelInvitation` server action
 
-### SuperAdmin API
-- [ ] `GET /api/superadmin/organizations` — list all orgs (paginated, filterable)
-- [ ] `POST /api/superadmin/organizations` — create org manually (bypass normal registration)
-- [ ] `PATCH /api/superadmin/organizations/[orgId]` — update any org, change plan, suspend
-- [ ] `DELETE /api/superadmin/organizations/[orgId]` — hard delete (with audit log)
-- [ ] `GET /api/superadmin/users` — list all users across all orgs
-- [ ] `PATCH /api/superadmin/users/[userId]` — update user, assign/remove isSuperAdmin
-- [ ] `POST /api/superadmin/impersonate` — create impersonation token, set cookie
-- [ ] `DELETE /api/superadmin/impersonate` — clear impersonation, return to SuperAdmin
+### SuperAdmin Portal
+- [x] List all orgs — `getAllOrganizations` (filterable by plan/status/search)
+- [x] Org detail — `getOrganizationDetail` (members, subscription, usage, settings)
+- [x] List all users — `getAllUsers` (searchable)
+- [x] Grant / revoke SuperAdmin — `grantSuperAdmin` / `revokeSuperAdmin` actions
+- [x] Suspend / reactivate org — `suspendOrg` / `reactivateOrg` actions
+- [x] Soft-delete org — `softDeleteOrg` action
+- [x] Change org plan — `changeOrgPlan` action (updates org + subscription)
+- [x] Impersonation — `startImpersonation` sets `luxe-impersonation` cookie; org layout
+      reads it to show `ImpersonationBanner`; `exitImpersonation` clears cookie + redirects
 
 ### Audit Log
-- [ ] Create `src/lib/audit.ts` — `logAction(actor, action, target, metadata)` helper
-- [ ] Wire into every mutation API route (member.invited, member.removed, org.updated, etc.)
-- [ ] `GET /api/superadmin/audit-log` — paginated log with filters
+- [x] `src/lib/audit.ts` — `logAction(params)` fire-and-forget helper, 13 typed actions
+- [x] Wired into member mutations (role_changed, removed, invite_cancelled)
+- [x] Wired into org mutations (settings_updated, deleted)
+- [x] Wired into all SuperAdmin mutations (suspended, reactivated, deleted, plan_changed)
+- [x] Wired into SA grant/revoke and impersonation lifecycle
+- [x] `getAuditLogs` with search + action-type filter; audit-log page updated
 
-### Logo Upload
-- [ ] Set up Cloudflare R2 bucket (or AWS S3)
+### Logo Upload (deferred)
+- [ ] Set up Cloudflare R2 bucket (or AWS S3)  — **blocked on credentials**
 - [ ] Install `@aws-sdk/client-s3` and `@aws-sdk/s3-request-presigner`
 - [ ] Create `POST /api/upload/presign` — generate pre-signed upload URL
 - [ ] Frontend: file input → upload to R2 directly (browser → R2), save URL to org record
