@@ -9,6 +9,7 @@
  * the audit-log page can filter/group by action type.
  */
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@/generated/prisma'
 
 export type AuditAction =
   | 'member.invited'
@@ -60,7 +61,9 @@ export async function logAction(params: LogActionParams): Promise<void> {
         action: params.action,
         targetType: params.targetType ?? null,
         targetId: params.targetId ?? null,
-        metadata: params.metadata ?? null,
+        // A nullable Json column needs Prisma's DbNull sentinel to store SQL
+        // NULL — a literal `null` is a type error under Prisma v7.
+        metadata: (params.metadata ?? Prisma.DbNull) as Prisma.InputJsonValue,
       },
     })
   } catch {
