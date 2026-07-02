@@ -114,3 +114,25 @@ export async function getAllUsers(query?: string) {
 export async function getRecentAuditLogs(limit = 50) {
   return prisma.auditLog.findMany({ orderBy: { createdAt: 'desc' }, take: limit })
 }
+
+/** Filtered audit log for the portal — supports text search and action-type filter. */
+export async function getAuditLogs(filters: { query?: string; action?: string } = {}, limit = 100) {
+  const where: Prisma.AuditLogWhereInput = {}
+
+  if (filters.query) {
+    where.OR = [
+      { actorId: { contains: filters.query, mode: 'insensitive' } },
+      { targetId: { contains: filters.query, mode: 'insensitive' } },
+      { action: { contains: filters.query, mode: 'insensitive' } },
+    ]
+  }
+  if (filters.action && filters.action !== 'all') {
+    where.action = filters.action
+  }
+
+  return prisma.auditLog.findMany({
+    where,
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+  })
+}
