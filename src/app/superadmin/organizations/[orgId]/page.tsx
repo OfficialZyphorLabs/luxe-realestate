@@ -1,9 +1,7 @@
 /**
- * SuperAdmin — single organization deep-dive: stats, subscription, members, and
- * settings. "View as Admin" links into the org dashboard (super-admins may enter
- * any org via the proxy; full token-based impersonation is Phase 2).
+ * SuperAdmin — single organization deep-dive: stats, subscription, members,
+ * settings, and admin action panel (suspend / delete / plan-change / impersonate).
  */
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getOrganizationDetail } from '@/lib/data/platform'
 import { PLAN_LABELS, PLAN_LIMITS } from '@/lib/data/dashboard'
@@ -14,7 +12,8 @@ import { RoleBadge } from '@/components/dashboard/RoleBadge'
 import { MemberAvatar } from '@/components/dashboard/MemberAvatar'
 import { PlanUsageMeter } from '@/components/dashboard/PlanUsageMeter'
 import { DataTable, type Column } from '@/components/dashboard/DataTable'
-import { Button } from '@/components/ui/Button'
+import { OrgActions } from '@/components/dashboard/superadmin/OrgActions'
+import { StartImpersonationButton } from '@/components/dashboard/superadmin/StartImpersonationButton'
 import { formatDate } from '@/lib/format'
 
 export default async function SuperAdminOrgDetailPage({
@@ -62,14 +61,7 @@ export default async function SuperAdminOrgDetailPage({
         actions={
           <div className="flex items-center gap-3">
             <StatusBadge status={org.status} />
-            <Link href={`/org/${org.slug}/dashboard`}>
-              <Button size="sm" variant="secondary">
-                <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
-                  visibility
-                </span>
-                View as Admin
-              </Button>
-            </Link>
+            <StartImpersonationButton orgSlug={org.slug} />
           </div>
         }
       />
@@ -87,8 +79,14 @@ export default async function SuperAdminOrgDetailPage({
           <DataTable columns={columns} rows={org.memberships} getRowKey={(m) => m.id} />
         </section>
 
-        {/* Subscription + usage + settings */}
+        {/* Actions + subscription + usage + settings */}
         <section className="flex flex-col gap-6">
+          <OrgActions
+            orgId={org.id}
+            orgName={org.name}
+            currentStatus={org.status}
+            currentPlan={org.plan}
+          />
           <div className="rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-5">
             <h3 className="mb-4 font-display text-headline-md font-semibold text-primary">
               Subscription
