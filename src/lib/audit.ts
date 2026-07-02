@@ -24,6 +24,21 @@ export type AuditAction =
   | 'user.superadmin_revoked'
   | 'impersonation.started'
   | 'impersonation.ended'
+  // Phase 4 — properties
+  | 'property.created'
+  | 'property.updated'
+  | 'property.deleted'
+  | 'property.published'
+  | 'property.unpublished'
+  // Phase 4 — leads
+  | 'lead.created'
+  | 'lead.status_changed'
+  | 'lead.assigned'
+  | 'lead.note_added'
+  // Phase 5 — billing
+  | 'billing.checkout_started'
+  | 'billing.portal_opened'
+  | 'billing.subscription_updated'
 
 export interface LogActionParams {
   actorId: string
