@@ -17,6 +17,7 @@ import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { logAction } from '@/lib/audit'
+import { IMPERSONATION_COOKIE } from '@/lib/impersonation'
 import type { Plan } from '@/generated/prisma'
 
 export type ActionResult = { ok: true } | { ok: false; error: string }
@@ -144,9 +145,6 @@ export async function revokeSuperAdmin(userId: string): Promise<ActionResult> {
 }
 
 // ─── Impersonation lifecycle ──────────────────────────────────────────────────
-
-/** Cookie name used to signal that a SuperAdmin is viewing an org as admin. */
-export const IMPERSONATION_COOKIE = 'luxe-impersonation'
 
 /**
  * Set the impersonation cookie and redirect into the org dashboard.

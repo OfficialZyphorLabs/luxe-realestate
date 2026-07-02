@@ -14,7 +14,7 @@ import { requireOrgAccess } from '@/lib/auth/session'
 import { isAdminOf } from '@/lib/permissions'
 import { getOrgBySlug, PLAN_LABELS } from '@/lib/data/dashboard'
 import { OrgShell } from '@/components/dashboard/org/OrgShell'
-import { IMPERSONATION_COOKIE } from '@/lib/actions/superadmin'
+import { IMPERSONATION_COOKIE } from '@/lib/impersonation'
 
 export default async function OrgLayout({
   children,
