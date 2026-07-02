@@ -7,12 +7,14 @@
  * scopes the target to the org in the slug, and guards org integrity (an org
  * must keep at least one admin; you can't remove yourself). Returns a result
  * object instead of throwing so the client can render friendly errors.
+ * Every mutation writes an audit log entry (best-effort, never blocking).
  */
 import { revalidatePath } from 'next/cache'
 import type { Session } from 'next-auth'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { can, type Permission } from '@/lib/permissions'
+import { logAction } from '@/lib/audit'
 import type { OrgRole } from '@/generated/prisma'
 
 export type ActionResult = { ok: true } | { ok: false; error: string }
@@ -58,6 +60,15 @@ export async function updateMemberRole(
   }
 
   await prisma.membership.update({ where: { id: membershipId }, data: { role } })
+  await logAction({
+    actorId: auth0.session.user.id,
+    actorType: 'USER',
+    organizationId: membership.organizationId,
+    action: 'member.role_changed',
+    targetType: 'User',
+    targetId: membership.userId,
+    metadata: { role },
+  })
   revalidatePath(`/org/${slug}/members`)
   return { ok: true }
 }
@@ -80,6 +91,14 @@ export async function removeMember(slug: string, membershipId: string): Promise<
   }
 
   await prisma.membership.delete({ where: { id: membershipId } })
+  await logAction({
+    actorId: auth0.session.user.id,
+    actorType: 'USER',
+    organizationId: membership.organizationId,
+    action: 'member.removed',
+    targetType: 'User',
+    targetId: membership.userId,
+  })
   revalidatePath(`/org/${slug}/members`)
   return { ok: true }
 }
@@ -97,6 +116,15 @@ export async function cancelInvitation(slug: string, invitationId: string): Prom
   }
 
   await prisma.invitation.delete({ where: { id: invitationId } })
+  await logAction({
+    actorId: auth0.session.user.id,
+    actorType: 'USER',
+    organizationId: invitation.organizationId,
+    action: 'member.invite_cancelled',
+    targetType: 'Invitation',
+    targetId: invitationId,
+    metadata: { email: invitation.email },
+  })
   revalidatePath(`/org/${slug}/members`)
   return { ok: true }
 }
