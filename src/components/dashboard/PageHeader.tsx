@@ -4,7 +4,8 @@
  */
 interface PageHeaderProps {
   title: string
-  description?: string
+  /** Plain text or inline nodes (e.g. a status badge alongside a date). */
+  description?: React.ReactNode
   actions?: React.ReactNode
 }
 
