@@ -1,13 +1,16 @@
 /**
- * SuperAdmin — all users across the platform, with their org memberships.
+ * SuperAdmin — all users across the platform, with their org memberships and
+ * a grant/revoke SuperAdmin action per row.
  */
 import { getAllUsers } from '@/lib/data/platform'
+import { requireSuperAdmin } from '@/lib/auth/session'
 import { PageHeader } from '@/components/dashboard/PageHeader'
 import { MemberAvatar } from '@/components/dashboard/MemberAvatar'
 import { RoleBadge } from '@/components/dashboard/RoleBadge'
 import { EmptyState } from '@/components/dashboard/EmptyState'
 import { DataTable, type Column } from '@/components/dashboard/DataTable'
 import { TableSearch } from '@/components/dashboard/superadmin/TableSearch'
+import { UserActions } from '@/components/dashboard/superadmin/UserActions'
 import { formatDate } from '@/lib/format'
 
 type UserRow = Awaited<ReturnType<typeof getAllUsers>>[number]
@@ -17,8 +20,9 @@ export default async function SuperAdminUsersPage({
 }: {
   searchParams: Promise<{ query?: string }>
 }) {
-  const { query } = await searchParams
+  const [{ query }, session] = await Promise.all([searchParams, requireSuperAdmin()])
   const users = await getAllUsers(query)
+  const currentUserId = session.user.id
 
   const columns: Column<UserRow>[] = [
     {
@@ -62,9 +66,21 @@ export default async function SuperAdminUsersPage({
     {
       key: 'joined',
       header: 'Joined',
-      align: 'right',
       hideOnMobile: true,
       render: (u) => <span className="text-secondary">{formatDate(u.createdAt)}</span>,
+    },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      render: (u) => (
+        <UserActions
+          userId={u.id}
+          userName={u.name}
+          isSuperAdmin={u.isSuperAdmin}
+          currentUserId={currentUserId}
+        />
+      ),
     },
   ]
 
