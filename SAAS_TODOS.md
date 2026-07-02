@@ -248,39 +248,53 @@
 
 ---
 
-## Phase 4 — Core Feature Porting (Properties & Leads)
+## Phase 4 — Core Feature Porting (Properties & Leads) ✅ COMPLETE (functional scope)
 **Goal:** Port existing property and lead features into the multi-tenant system.
 **Duration estimate:** 4–6 days
 
+> **Status:** Implemented. Property + lead CRUD, the Kanban pipeline, and the
+> org white-label public catalog are live and build clean. Deviations from the
+> original spec, all driven by the App Router / Server Actions pattern already
+> established in Phases 2–3:
+> - Property/lead **mutations are Server Actions** (`lib/actions/{properties,leads}.ts`),
+>   not REST route files. The one REST route is the **public** lead endpoint
+>   (`POST /api/org/[slug]/leads`) — it needs to accept anonymous, IP-rate-limited
+>   submissions, which a Server Action can't gate as cleanly.
+> - Schema gained `PropertyType` + `description`, a `LeadNote` model (timeline),
+>   and `Lead.assignee`/`updatedAt` relations. **A migration must be generated
+>   once a DB is provisioned** (`prisma migrate dev`); the client is already
+>   generated and RLS updated for `lead_notes`.
+> - **Image upload is still URL-based** (ordered image-URL manager) — direct R2
+>   uploads remain blocked on credentials (bundled with the logo-upload item).
+> - Bulk listing actions deferred (single-row actions cover the workflow).
+
 ### Properties (multi-tenant)
-- [ ] Add `organizationId` to all property DB queries
-- [ ] Port existing property types/interfaces to use Prisma-generated types
-- [ ] `GET /api/org/[slug]/listings` — paginated, filtered (status, beds, price range)
-- [ ] `POST /api/org/[slug]/listings` — create (ADMIN | MEMBER), enforce plan listing limits
-- [ ] `GET /api/org/[slug]/listings/[id]` — single listing detail
-- [ ] `PATCH /api/org/[slug]/listings/[id]` — update (ADMIN: any | MEMBER: own only)
-- [ ] `DELETE /api/org/[slug]/listings/[id]` — delete (ADMIN only)
-- [ ] Property image upload flow (presigned URL → R2 → save array of URLs)
-- [ ] `/org/[slug]/listings` — listings management page (table + grid toggle)
-- [ ] `/org/[slug]/listings/new` — create listing form (full property form)
-- [ ] `/org/[slug]/listings/[id]/edit` — edit form pre-populated
-- [ ] Bulk actions: publish/unpublish/delete selected (ADMIN only)
+- [x] All property queries scoped by `organizationId` (`lib/data/properties.ts`) + RLS backstop
+- [x] Prisma-generated types used throughout (no hand-rolled interfaces)
+- [x] List — paginated + filtered (search, status) via `listProperties`
+- [x] Create — `createProperty` action (ADMIN | MEMBER); plan-limit enforcement wired in Phase 5
+- [x] Single listing detail — `getPropertyById` (tenant-scoped)
+- [x] Update — `updateProperty` (ADMIN: any | MEMBER: own only)
+- [x] Delete — `deleteProperty` (ADMIN only) + quick `setPropertyStatus`
+- [ ] Property image upload flow (presigned URL → R2) — **URL-based for now; R2 deferred**
+- [x] `/org/[slug]/listings` — management page (grid + table toggle, filters, pagination)
+- [x] `/org/[slug]/listings/new` — create form (full PropertyForm)
+- [x] `/org/[slug]/listings/[id]/edit` — pre-populated, ownership-gated
+- [ ] Bulk actions — deferred (per-row publish/unpublish/delete implemented instead)
 
 ### Leads / Inquiries (multi-tenant)
-- [ ] `POST /api/org/[slug]/leads` — create lead from public inquiry form (no auth required)
-- [ ] `GET /api/org/[slug]/leads` — list (ADMIN: all | MEMBER: assigned to them)
-- [ ] `PATCH /api/org/[slug]/leads/[id]` — update status, assign to member (ADMIN only)
-- [ ] Lead notification email on new inquiry (to ADMIN + assigned agent)
-- [ ] `/org/[slug]/leads` — lead pipeline board (Kanban: NEW → CONTACTED → QUALIFIED → CLOSED)
-- [ ] `/org/[slug]/leads/[id]` — lead detail with activity timeline, notes, contact info
-- [ ] Lead assignment UI — dropdown to assign to any active member
+- [x] `POST /api/org/[slug]/leads` — public inquiry → lead (no auth, IP rate-limited)
+- [x] List — `listLeads` (ADMIN: all | MEMBER: assigned to them, enforced in data layer)
+- [x] Update status + assign — `updateLeadStatus` / `assignLead` (assign is admin-only)
+- [x] Lead notification email on new inquiry (to org admins) — best-effort
+- [x] `/org/[slug]/leads` — Kanban pipeline board (New → Contacted → Qualified → Closed) + list view
+- [x] `/org/[slug]/leads/[id]` — detail with contact, message, note timeline
+- [x] Lead assignment UI — assignee dropdown on the detail panel
 
 ### Public Listings (org white-label)
-- [ ] `/org/[slug]/public` — public-facing listing page for the org (their branded catalog)
-  - Shows all ACTIVE listings for that org
-  - Inquiry form that creates a lead in that org
-  - Uses org's logo and primary color
-- [ ] Update public Contact form to route inquiry to correct org
+- [x] `/org/[slug]/public` — branded catalog (logo + brand color), ACTIVE listings, inquiry form
+  - Lives outside the auth-gated `(app)` route group; proxy-exempted
+- [x] Inquiry form routes the lead to the correct org via the public API
 
 ---
 
