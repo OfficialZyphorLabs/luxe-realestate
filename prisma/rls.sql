@@ -21,6 +21,7 @@ ALTER TABLE memberships       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE invitations       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE org_settings      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE property_images   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE lead_notes        ENABLE ROW LEVEL SECURITY;
 
 -- The second argument `true` to current_setting() makes it return NULL instead
 -- of throwing when the setting is unset — so the migration runner and seed
@@ -57,6 +58,17 @@ CREATE POLICY org_isolation_property_images ON property_images
   USING (
     "propertyId" IN (
       SELECT id FROM properties
+      WHERE "organizationId" = current_setting('app.current_org_id', true)
+    )
+  );
+
+-- Lead notes inherit their tenant boundary from the parent lead.
+DROP POLICY IF EXISTS org_isolation_lead_notes ON lead_notes;
+CREATE POLICY org_isolation_lead_notes ON lead_notes
+  FOR ALL
+  USING (
+    "leadId" IN (
+      SELECT id FROM leads
       WHERE "organizationId" = current_setting('app.current_org_id', true)
     )
   );

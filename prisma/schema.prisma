@@ -47,6 +47,8 @@ model User {
   accounts            Account[]
   sessions            Session[]
   passwordResetTokens PasswordResetToken[]
+  assignedLeads       Lead[]               @relation("LeadAssignee")
+  leadNotes           LeadNote[]
 
   @@map("users")
 }
@@ -105,6 +107,7 @@ model Property {
   organizationId String
   slug           String
   title          String
+  description    String?        // long-form marketing copy shown on the public detail view
   price          Float
   address        String
   city           String
@@ -112,7 +115,8 @@ model Property {
   beds           Int?
   baths          Int?
   sqft           Int?
-  status         PropertyStatus @default(ACTIVE)
+  propertyType   PropertyType   @default(HOUSE)
+  status         PropertyStatus @default(DRAFT)
   createdById    String
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
@@ -122,7 +126,9 @@ model Property {
   leads        Lead[]
 
   @@unique([organizationId, slug])
-  @@index([organizationId])
+  // Composite index for the common "list this org's properties, filtered by
+  // status, newest first" query on the listings page.
+  @@index([organizationId, status, createdAt(sort: Desc)])
   @@map("properties")
 }
 
@@ -146,14 +152,34 @@ model Lead {
   phone          String?
   message        String?
   status         LeadStatus @default(NEW)
-  assignedTo     String?
+  assignedTo     String?    // FK to the User the lead is assigned to (nullable = unassigned)
   createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id])
   property     Property?    @relation(fields: [propertyId], references: [id])
+  assignee     User?        @relation("LeadAssignee", fields: [assignedTo], references: [id])
+  notes        LeadNote[]
 
-  @@index([organizationId])
+  // Ordered by pipeline column then recency for the Kanban board query.
+  @@index([organizationId, status, createdAt(sort: Desc)])
+  @@index([assignedTo])
   @@map("leads")
+}
+
+// Free-text notes an agent adds to a lead — powers the lead detail timeline.
+model LeadNote {
+  id        String   @id @default(cuid())
+  leadId    String
+  authorId  String
+  body      String
+  createdAt DateTime @default(now())
+
+  lead   Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([leadId, createdAt(sort: Desc)])
+  @@map("lead_notes")
 }
 
 model OrgSettings {
@@ -269,6 +295,16 @@ enum PropertyStatus {
   ACTIVE
   SOLD
   WITHDRAWN
+}
+
+enum PropertyType {
+  HOUSE
+  APARTMENT
+  CONDO
+  TOWNHOUSE
+  VILLA
+  PENTHOUSE
+  LAND
 }
 
 enum LeadStatus {
