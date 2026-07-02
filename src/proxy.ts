@@ -58,9 +58,20 @@ export default auth((req) => {
 
   // ── Org dashboards: /org/[slug]/* ──
   if (pathname.startsWith('/org/')) {
-    if (!isLoggedIn) return redirectToLogin(req)
+    const segments = pathname.split('/') // ['', 'org', '<slug>', '<section>', ...]
+    const slug = segments[2]
 
-    const slug = pathname.split('/')[2] // ['', 'org', '<slug>', ...]
+    // Public white-label catalog (/org/[slug]/public) is intentionally open —
+    // anonymous visitors browse listings and submit inquiries. Skip the auth
+    // gate but still forward the tenant slug. (Deliberate exemption, not an
+    // accidental matcher gap — see the defense-in-depth note above.)
+    if (segments[3] === 'public') {
+      const headers = new Headers(req.headers)
+      if (slug) headers.set('x-org-slug', slug)
+      return NextResponse.next({ request: { headers } })
+    }
+
+    if (!isLoggedIn) return redirectToLogin(req)
     if (!slug) return NextResponse.redirect(new URL('/', req.url))
 
     const membership = session!.user.memberships.find((m) => m.orgSlug === slug)
