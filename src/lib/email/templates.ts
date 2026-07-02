@@ -126,6 +126,53 @@ export function invitationEmail(params: {
   }
 }
 
+/** Lead-notification email sent to org admins/agents when a new inquiry lands. */
+export function leadNotificationEmail(params: {
+  orgName: string
+  leadName: string
+  leadEmail: string
+  leadPhone?: string | null
+  propertyTitle?: string | null
+  message?: string | null
+  leadUrl: string
+}): RenderedEmail {
+  const { orgName, leadName, leadEmail, leadPhone, propertyTitle, message, leadUrl } = params
+
+  // Definition-list rows for whatever the inquiry included.
+  const row = (label: string, value: string) =>
+    `<tr>
+      <td style="padding:6px 0;font-size:13px;color:${MUTED};width:120px;vertical-align:top;">${esc(label)}</td>
+      <td style="padding:6px 0;font-size:14px;color:${TEXT};">${value}</td>
+    </tr>`
+  const rows =
+    row('Name', esc(leadName)) +
+    row('Email', `<a href="mailto:${esc(leadEmail)}" style="color:${NAVY};">${esc(leadEmail)}</a>`) +
+    (leadPhone ? row('Phone', esc(leadPhone)) : '') +
+    (propertyTitle ? row('Interested in', esc(propertyTitle)) : row('Interested in', 'General inquiry'))
+
+  const html = layout(
+    heading(`New inquiry for ${esc(orgName)}`) +
+      paragraph('You have a new lead. Details below — respond promptly to win the client.') +
+      `<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin:8px 0 4px;">${rows}</table>` +
+      (message
+        ? `<div style="margin:16px 0;padding:16px;background:${CREAM};border-radius:12px;">
+            <p style="margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:${MUTED};">Message</p>
+            <p style="margin:0;font-size:14px;line-height:22px;color:${TEXT};">${esc(message)}</p>
+          </div>`
+        : '') +
+      button('View lead', leadUrl) +
+      fallbackLink(leadUrl)
+  )
+
+  return {
+    subject: `New inquiry from ${leadName} — ${orgName}`,
+    html,
+    text: `New inquiry for ${orgName}. ${leadName} (${leadEmail}${leadPhone ? `, ${leadPhone}` : ''})${
+      propertyTitle ? ` about ${propertyTitle}` : ''
+    }. View: ${leadUrl}`,
+  }
+}
+
 /** Password-reset email. */
 export function passwordResetEmail(params: { name: string | null; resetUrl: string }): RenderedEmail {
   const { name, resetUrl } = params

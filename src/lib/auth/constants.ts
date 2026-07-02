@@ -65,4 +65,6 @@ export const RATE_LIMITS = {
   passwordReset: { limit: 5, windowSeconds: 60 * 15 },
   /** Member invitations per org. */
   invite: { limit: 20, windowSeconds: 60 * 60 },
+  /** Public inquiry submissions per IP — blunt spam on the lead capture form. */
+  publicLead: { limit: 5, windowSeconds: 60 },
 } as const
