@@ -22,6 +22,7 @@ import { generateToken } from '@/lib/auth/tokens'
 import { TRIAL_PERIOD_MS } from '@/lib/auth/constants'
 import { enforceRateLimit, getClientIp } from '@/lib/rate-limit'
 import { sendWelcomeEmail } from '@/lib/email'
+import { getStripe, isBillingEnabled } from '@/lib/billing/stripe'
 
 export async function POST(req: Request) {
   return handleRoute(async () => {
@@ -96,6 +97,28 @@ export async function POST(req: Request) {
         }
         throw err
       })
+
+    // 4b. If Stripe is configured, provision a real customer now and replace the
+    //     placeholder id. Best-effort — checkout also self-heals this later, so a
+    //     Stripe outage must never fail signup.
+    if (isBillingEnabled()) {
+      try {
+        const stripe = getStripe()
+        if (stripe) {
+          const customer = await stripe.customers.create({
+            name: org.name,
+            email,
+            metadata: { orgId: org.id, orgSlug: org.slug },
+          })
+          await prisma.subscription.update({
+            where: { organizationId: org.id },
+            data: { stripeCustomerId: customer.id },
+          })
+        }
+      } catch (e) {
+        console.error('[register] stripe customer creation failed (non-fatal):', e)
+      }
+    }
 
     // 5. Best-effort welcome email.
     try {
