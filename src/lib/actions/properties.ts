@@ -22,6 +22,7 @@ import { propertyInputSchema, type PropertyInput } from '@/lib/validations/prope
 import { slugify } from '@/lib/validations/auth'
 import { getOrgBySlug } from '@/lib/data/dashboard'
 import { getPropertyById, isPropertySlugTaken } from '@/lib/data/properties'
+import { assertWithinPlanLimit } from '@/lib/billing/limits'
 import type { PropertyStatus } from '@/generated/prisma'
 
 export type ActionResult = { ok: true } | { ok: false; error: string }
@@ -62,6 +63,10 @@ export async function createProperty(slug: string, input: PropertyInput): Promis
   const parsed = propertyInputSchema.safeParse(input)
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? 'Please check the form.' }
   const data = parsed.data
+
+  // Enforce the plan's listing cap before creating.
+  const limit = await assertWithinPlanLimit(authz.orgId, 'listings')
+  if (!limit.ok) return { ok: false, error: limit.error }
 
   const propertySlug = await uniquePropertySlug(authz.orgId, data.title)
 

@@ -19,6 +19,7 @@ import { generateToken, hashToken } from '@/lib/auth/tokens'
 import { INVITATION_TTL_MS } from '@/lib/auth/constants'
 import { enforceRateLimit, getClientIp } from '@/lib/rate-limit'
 import { sendInvitationEmail } from '@/lib/email'
+import { assertWithinPlanLimit } from '@/lib/billing/limits'
 
 export async function POST(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   return handleRoute(async () => {
@@ -60,6 +61,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
         })
       }
     }
+
+    // 4b. Enforce the plan's member cap before adding a seat.
+    const limit = await assertWithinPlanLimit(org.id, 'members')
+    if (!limit.ok) return fail(limit.error, 402, { code: 'PLAN_LIMIT' })
 
     // 5. Mint a fresh invite, replacing any pending one for this email+org.
     const rawToken = generateToken()
