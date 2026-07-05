@@ -1,7 +1,8 @@
 /**
- * Billing — current plan, usage against plan limits, and a plan comparison.
- * Admin-only (billing:manage). Self-serve changes (Stripe) arrive in Phase 5;
- * this page surfaces the current state and limits today.
+ * Billing — current plan, usage against plan limits, and self-serve Stripe
+ * management (Phase 5). Admin-only (billing:manage). Change-plan opens Stripe
+ * Checkout; "Manage subscription" opens the Customer Portal (see BillingActions).
+ * A post-checkout banner reflects the ?checkout= result.
  */
 import { notFound } from 'next/navigation'
 import { requireOrgAccess } from '@/lib/auth/session'
@@ -9,6 +10,7 @@ import { getOrgBySlug, PLAN_LABELS, PLAN_PRICES, PLAN_LIMITS } from '@/lib/data/
 import { PageHeader } from '@/components/dashboard/PageHeader'
 import { StatusBadge } from '@/components/dashboard/StatusBadge'
 import { PlanUsageMeter } from '@/components/dashboard/PlanUsageMeter'
+import { BillingActions } from '@/components/dashboard/org/BillingActions'
 import { formatDate } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import type { Plan } from '@/generated/prisma'
@@ -20,8 +22,15 @@ const PLAN_FEATURES: Record<Plan, string[]> = {
   ENTERPRISE: ['Unlimited members', 'Unlimited listings', 'CRM + export', 'Dedicated support'],
 }
 
-export default async function OrgBillingPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function OrgBillingPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ checkout?: string }>
+}) {
   const { slug } = await params
+  const { checkout } = await searchParams
   await requireOrgAccess(slug, 'billing:manage')
   const org = await getOrgBySlug(slug)
   if (!org) notFound()
@@ -32,7 +41,24 @@ export default async function OrgBillingPage({ params }: { params: Promise<{ slu
 
   return (
     <>
-      <PageHeader title="Billing" description="Your plan, usage, and limits." />
+      <PageHeader
+        title="Billing"
+        description="Your plan, usage, and limits."
+        actions={<BillingActions slug={slug} currentPlan={plan} />}
+      />
+
+      {checkout === 'success' && (
+        <div className="mb-6 flex items-center gap-2 rounded-xl bg-primary/10 px-4 py-3 font-body text-body-md text-primary">
+          <span className="material-symbols-outlined text-[20px]" aria-hidden="true">check_circle</span>
+          Payment received — your plan will update momentarily.
+        </div>
+      )}
+      {checkout === 'cancelled' && (
+        <div className="mb-6 flex items-center gap-2 rounded-xl bg-surface-container px-4 py-3 font-body text-body-md text-secondary">
+          <span className="material-symbols-outlined text-[20px]" aria-hidden="true">info</span>
+          Checkout was cancelled — no changes were made.
+        </div>
+      )}
 
       {/* Current plan */}
       <div className="rounded-2xl bg-primary p-6 text-on-primary md:p-8">
@@ -126,7 +152,9 @@ export default async function OrgBillingPage({ params }: { params: Promise<{ slu
         })}
       </div>
       <p className="mt-6 font-body text-body-md text-secondary">
-        Self-serve plan changes and payment management arrive with Stripe billing in Phase 5.
+        Use <span className="font-semibold text-on-surface">Change plan</span> to upgrade via Stripe
+        Checkout, or <span className="font-semibold text-on-surface">Manage subscription</span> to update
+        payment details, download invoices, or cancel.
       </p>
     </>
   )
