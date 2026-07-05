@@ -7,26 +7,11 @@
  */
 import { cache } from 'react'
 import { prisma } from '@/lib/prisma'
-import type { Plan } from '@/generated/prisma'
 
-// ── Plan configuration (SAAS_ARCHITECTURE.md §12) ──
-export const PLAN_LIMITS: Record<Plan, { members: number | null; listings: number | null }> = {
-  STARTER: { members: 5, listings: 20 },
-  GROWTH: { members: 20, listings: 100 },
-  ENTERPRISE: { members: null, listings: null },
-}
-
-export const PLAN_LABELS: Record<Plan, string> = {
-  STARTER: 'Starter',
-  GROWTH: 'Growth',
-  ENTERPRISE: 'Enterprise',
-}
-
-export const PLAN_PRICES: Record<Plan, string> = {
-  STARTER: '$49',
-  GROWTH: '$149',
-  ENTERPRISE: 'Custom',
-}
+// Plan metadata lives in a Prisma-free module so Client Components can import it
+// without pulling the DB client into the browser bundle. Re-exported here for
+// the many existing server call sites that import it from this module.
+export { PLAN_LIMITS, PLAN_LABELS, PLAN_PRICES } from '@/lib/billing/plan-meta'
 
 /**
  * Org core record + settings, subscription, and entity counts for a slug.

@@ -14,7 +14,7 @@
 import { useState } from 'react'
 import { createCheckoutSession, createPortalSession } from '@/lib/actions/billing'
 import { SELF_SERVE_PLANS } from '@/lib/billing/plans'
-import { PLAN_LABELS, PLAN_PRICES } from '@/lib/data/dashboard'
+import { PLAN_LABELS, PLAN_PRICES } from '@/lib/billing/plan-meta'
 import { Modal } from '@/components/dashboard/Modal'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
