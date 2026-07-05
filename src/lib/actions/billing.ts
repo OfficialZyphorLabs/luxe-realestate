@@ -103,3 +103,29 @@ export async function createCheckoutSession(slug: string, plan: Plan): Promise<B
 
   return { ok: true, url: checkout.url }
 }
+
+/**
+ * Create a Stripe Customer Portal session so admins can self-serve manage
+ * payment methods, invoices, upgrades/downgrades, and cancellation. Returns the
+ * hosted portal URL.
+ */
+export async function createPortalSession(slug: string): Promise<BillingResult> {
+  const ctx = await resolveBillingContext(slug)
+  if (!ctx.ok) return { ok: false, error: ctx.error }
+
+  const portal = await ctx.stripe.billingPortal.sessions.create({
+    customer: ctx.customerId,
+    return_url: `${getBaseUrl()}/org/${slug}/billing`,
+  })
+
+  await logAction({
+    actorId: ctx.session.user.id,
+    actorType: 'USER',
+    organizationId: ctx.org.id,
+    action: 'billing.portal_opened',
+    targetType: 'Organization',
+    targetId: ctx.org.id,
+  })
+
+  return { ok: true, url: portal.url }
+}
