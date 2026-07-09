@@ -49,9 +49,12 @@ export default function RootLayout({
             Next lint rules below target *text* fonts: `block` is the right choice for
             a ligature icon font, and the link lives in the root layout so it loads
             site-wide (not per-page). */}
+        {/* Only request the axes we actually render (opsz 24, wght 400, FILL 0..1,
+            GRAD 0) instead of the full variable-font ranges — this shrinks the
+            icon font download dramatically so glyphs paint quickly. */}
         {/* eslint-disable-next-line @next/next/google-font-display, @next/next/no-page-custom-font */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0&display=block"
           rel="stylesheet"
         />
       </head>
@@ -63,7 +66,7 @@ export default function RootLayout({
             (beforeInteractive) rather than a raw <script>, which React 19 refuses to
             execute and warns about in the dev overlay. */}
         <Script id="fonts-loading-guard" strategy="beforeInteractive">
-          {`(function(){var d=document.documentElement;d.classList.add('fonts-loading');function done(){d.classList.remove('fonts-loading')}if(document.fonts&&document.fonts.load){document.fonts.load("24px 'Material Symbols Outlined'").then(done).catch(done);setTimeout(done,3000)}else{done()}})();`}
+          {`(function(){var d=document.documentElement;d.classList.add('fonts-loading');function done(){d.classList.remove('fonts-loading')}if(document.fonts&&document.fonts.load){document.fonts.load("24px 'Material Symbols Outlined'").then(done).catch(done);setTimeout(done,1000)}else{done()}})();`}
         </Script>
         <Preloader />
         <AuthSessionProvider>
