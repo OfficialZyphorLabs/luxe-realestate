@@ -277,9 +277,10 @@
   box-sizing: border-box;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+/* No CSS `scroll-behavior: smooth` here: Lenis drives smooth scrolling (and adds
+   `.lenis-smooth` which forces `scroll-behavior: auto` anyway). Declaring it
+   globally only fought Lenis and slowed programmatic jumps under reduced motion,
+   where instant scrolling is the correct, faster behavior. */
 
 /* Lenis smooth-scroll (see components/providers/SmoothScroll.tsx).
    Lenis adds `.lenis` to <html> only when active, so native scrolling is
