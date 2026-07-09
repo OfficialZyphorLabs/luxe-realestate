@@ -28,11 +28,13 @@ export function SmoothScroll() {
     if (reduce) return
 
     const lenis = new Lenis({
-      duration: 1.1,
+      // Shorter duration = the page tracks the wheel more tightly and settles
+      // faster, so scrolling feels responsive rather than "floaty"/laggy.
+      duration: 0.8,
       // Exponential ease-out — quick to respond, gentle to settle.
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      touchMultiplier: 1.5,
+      touchMultiplier: 2,
     })
     lenisInstance = lenis
 
