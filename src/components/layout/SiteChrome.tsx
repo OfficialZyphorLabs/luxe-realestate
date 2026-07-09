@@ -6,7 +6,7 @@
  * Two jobs:
  *  1. Render the public Navbar/Footer everywhere except auth screens (which use
  *     their own full-screen shell), keeping the root layout a Server Component.
- *  2. Animate route changes with a fade + slide-up, keyed by pathname.
+ *  2. Animate route changes with a quick fade, keyed by pathname.
  *
  * Page-transition design notes:
  *  - `AnimatePresence initial={false}` means the FIRST render (and SSR output)
@@ -54,9 +54,9 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
     <AnimatePresence initial={false}>
       <motion.div
         key={pathname}
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
       >
         {children}
       </motion.div>
