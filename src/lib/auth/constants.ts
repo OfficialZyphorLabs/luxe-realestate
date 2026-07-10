@@ -67,4 +67,6 @@ export const RATE_LIMITS = {
   invite: { limit: 20, windowSeconds: 60 * 60 },
   /** Public inquiry submissions per IP — blunt spam on the lead capture form. */
   publicLead: { limit: 5, windowSeconds: 60 },
+  /** AI generation calls per user — bound cost/abuse of the LLM endpoints. */
+  ai: { limit: 20, windowSeconds: 60 },
 } as const

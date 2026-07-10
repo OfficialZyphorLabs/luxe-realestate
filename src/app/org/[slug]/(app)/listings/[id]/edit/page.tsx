@@ -9,6 +9,7 @@ import { can } from '@/lib/permissions'
 import { getOrgBySlug } from '@/lib/data/dashboard'
 import { getPropertyById } from '@/lib/data/properties'
 import { isStorageConfigured } from '@/lib/storage'
+import { isAiConfigured } from '@/lib/ai'
 import { PageHeader } from '@/components/dashboard/PageHeader'
 import { PropertyForm, type PropertyFormDefaults } from '@/components/dashboard/org/PropertyForm'
 
@@ -56,6 +57,7 @@ export default async function EditListingPage({
           propertyId={property.id}
           defaults={defaults}
           uploadEnabled={isStorageConfigured()}
+          aiEnabled={isAiConfigured()}
         />
       </div>
     </>

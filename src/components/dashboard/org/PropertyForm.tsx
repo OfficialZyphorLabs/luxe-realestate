@@ -49,6 +49,8 @@ interface PropertyFormProps {
   defaults?: Partial<PropertyFormDefaults>
   /** True when object storage is configured → show direct file upload. */
   uploadEnabled?: boolean
+  /** True when the AI is configured → show "Generate with AI" for the description. */
+  aiEnabled?: boolean
 }
 
 const EMPTY: PropertyFormDefaults = {
@@ -69,13 +71,22 @@ const EMPTY: PropertyFormDefaults = {
 const TYPE_OPTIONS = PROPERTY_TYPES.map((t) => ({ value: t, label: PROPERTY_TYPE_LABELS[t] }))
 const STATUS_OPTIONS = PROPERTY_STATUSES.map((s) => ({ value: s, label: PROPERTY_STATUS_LABELS[s] }))
 
-export function PropertyForm({ slug, mode, propertyId, defaults, uploadEnabled = false }: PropertyFormProps) {
+export function PropertyForm({
+  slug,
+  mode,
+  propertyId,
+  defaults,
+  uploadEnabled = false,
+  aiEnabled = false,
+}: PropertyFormProps) {
   const router = useRouter()
   const initial = { ...EMPTY, ...defaults }
 
   const [values, setValues] = useState<PropertyFormDefaults>(initial)
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiError, setAiError] = useState<string | null>(null)
 
   /** Patch a single field. */
   function set<K extends keyof PropertyFormDefaults>(key: K, value: PropertyFormDefaults[K]) {
@@ -119,6 +130,45 @@ export function PropertyForm({ slug, mode, propertyId, defaults, uploadEnabled =
       router.push(`/org/${slug}/listings` as Route)
       router.refresh()
     })
+  }
+
+  /** Ask the AI endpoint to draft a description from the current facts. */
+  async function generateDescription() {
+    if (!values.title.trim() || !values.price.trim()) {
+      setAiError('Add a title and price first.')
+      return
+    }
+    setAiError(null)
+    setAiLoading(true)
+    try {
+      const res = await fetch(`/api/org/${slug}/ai/listing-description`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: values.title,
+          propertyType: values.propertyType,
+          price: values.price.trim() === '' ? 0 : Number(values.price),
+          address: values.address,
+          city: values.city,
+          state: values.state,
+          beds: num(values.beds),
+          baths: num(values.baths),
+          sqft: num(values.sqft),
+          images: [],
+          status: values.status,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.ok) {
+        setAiError(data.message ?? 'Could not generate a description.')
+        return
+      }
+      set('description', data.description)
+    } catch {
+      setAiError('Network error — please try again.')
+    } finally {
+      setAiLoading(false)
+    }
   }
 
   return (
@@ -215,12 +265,27 @@ export function PropertyForm({ slug, mode, propertyId, defaults, uploadEnabled =
         </div>
 
         <div className="flex flex-col gap-1.5 md:col-span-2">
-          <label
-            htmlFor="description"
-            className="font-body text-label-md text-xs font-semibold uppercase tracking-widest text-secondary"
-          >
-            Description
-          </label>
+          <div className="flex items-center justify-between">
+            <label
+              htmlFor="description"
+              className="font-body text-label-md text-xs font-semibold uppercase tracking-widest text-secondary"
+            >
+              Description
+            </label>
+            {aiEnabled && (
+              <button
+                type="button"
+                onClick={generateDescription}
+                disabled={aiLoading}
+                className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 px-3 py-1 font-body text-caption font-semibold text-primary transition-colors hover:bg-primary/5 disabled:opacity-50"
+              >
+                <span className="material-symbols-outlined text-[16px]" aria-hidden="true">
+                  {aiLoading ? 'progress_activity' : 'auto_awesome'}
+                </span>
+                {aiLoading ? 'Writing…' : 'Generate with AI'}
+              </button>
+            )}
+          </div>
           <textarea
             id="description"
             rows={5}
@@ -229,6 +294,7 @@ export function PropertyForm({ slug, mode, propertyId, defaults, uploadEnabled =
             onChange={(e) => set('description', e.target.value)}
             className="rounded-lg border border-outline-variant/50 bg-surface-container-low px-4 py-3 font-body text-body-md text-on-surface transition-standard placeholder:text-secondary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           />
+          {aiError && <p className="font-body text-caption text-error">{aiError}</p>}
         </div>
       </section>
 
