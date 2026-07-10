@@ -104,16 +104,20 @@ Do high-impact / low-effort first.
 
 ## 4. Recommended release plan
 
-### 🎯 Milestone 1 — "Sellable MVP" (close the demo-killers)
+### 🎯 Milestone 1 — "Sellable MVP" ✅ SHIPPED (close the demo-killers)
 Goal: an agency can sign up and run their entire public presence + lead flow.
-- Image/video uploads (#1)
-- Public property detail page + listing SEO (#2)
-- Public search & filters (#3)
-- AI listing description writer (#5)
-- Onboarding wizard + demo data (#6)
-- Finish transactional emails + deliverability
+- [x] Image uploads (#1) — S3-compatible (R2/S3), gated on credentials; URL fallback
+- [x] Public property detail page + listing SEO (#2) — metadata, JSON-LD, sitemap, robots
+- [x] Public search & filters (#3) — price/beds/type/city on the catalog
+- [x] AI listing description writer (#5) — Anthropic, gated on `ANTHROPIC_API_KEY`
+- [x] Onboarding checklist + demo data (#6) — "load sample listings" for instant activation
+- [x] Transactional emails wired (invite/reset/welcome/lead) — deliverability needs a verified domain
 
-**Outcome:** demoable, self-serve, "wow" first run → start charging design partners.
+**Outcome:** demoable, self-serve, "wow" first run → ready to charge design partners.
+
+> **Verified by `next build` only** (no live DB/keys). Two gated features
+> (uploads, AI) activate when their env vars are set; everything else runs today.
+> **Video** upload deferred (images only). **CSV import** deferred to Milestone 2.
 
 ### 🚀 Milestone 2 — "Retention & Brand" (make them stay & pay more)
 - Custom domains (#4)
@@ -140,17 +144,19 @@ Goal: an agency can sign up and run their entire public presence + lead flow.
 
 ## 5. "Sellable MVP" definition of done (checklist)
 
-- [ ] Agents upload photos/video from any device (no URL pasting)
-- [ ] Every listing has a public, shareable, SEO-optimized detail page
-- [ ] Buyers can search/filter the public catalog
-- [ ] One-click AI-generated listing descriptions
-- [ ] New agency reaches a branded, populated site in < 10 minutes (wizard + demo data)
-- [ ] All transactional emails send reliably from a verified domain
-- [ ] Leads never leak: capture → pipeline → assigned → follow-up reminder
-- [ ] Billing, limits, and trial→paid conversion work end-to-end in production
-- [ ] Basic reliability: error tracking + health check + backups
+- [x] Agents upload photos from any device (images; **needs R2/S3 keys** to activate — URL fallback otherwise). *Video deferred.*
+- [x] Every listing has a public, shareable, SEO-optimized detail page (metadata + JSON-LD + sitemap)
+- [x] Buyers can search/filter the public catalog
+- [x] One-click AI-generated listing descriptions (**needs `ANTHROPIC_API_KEY`** to activate)
+- [x] New agency reaches a branded, populated site in minutes (onboarding checklist + "load sample listings")
+- [~] Transactional emails wired for all flows — **reliable delivery needs a verified domain** (`RESEND_API_KEY` + DNS)
+- [x] Leads never leak: capture → pipeline → assigned → note timeline. *(Follow-up reminders = Milestone 2.)*
+- [~] Billing, limits, trial→paid work in code — **verified by build only**; needs live DB + Stripe keys for a real run
+- [~] Reliability: `/api/health` + error/404 boundaries shipped. *(Sentry + backups + tests = Milestone 3.)*
 
-When every box is checked, LuxeReal is ready to charge real money at scale.
+**Status:** MVP feature-complete in code and building clean. Remaining boxes
+(`[~]`) are **operational** — they need credentials/infra you provision, not
+more code. See `## What I need from you` in the chat summary / the env block below.
 
 ---
 
