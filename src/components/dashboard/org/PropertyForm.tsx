@@ -47,6 +47,8 @@ interface PropertyFormProps {
   /** Required in edit mode — the property being edited. */
   propertyId?: string
   defaults?: Partial<PropertyFormDefaults>
+  /** True when object storage is configured → show direct file upload. */
+  uploadEnabled?: boolean
 }
 
 const EMPTY: PropertyFormDefaults = {
@@ -67,7 +69,7 @@ const EMPTY: PropertyFormDefaults = {
 const TYPE_OPTIONS = PROPERTY_TYPES.map((t) => ({ value: t, label: PROPERTY_TYPE_LABELS[t] }))
 const STATUS_OPTIONS = PROPERTY_STATUSES.map((s) => ({ value: s, label: PROPERTY_STATUS_LABELS[s] }))
 
-export function PropertyForm({ slug, mode, propertyId, defaults }: PropertyFormProps) {
+export function PropertyForm({ slug, mode, propertyId, defaults, uploadEnabled = false }: PropertyFormProps) {
   const router = useRouter()
   const initial = { ...EMPTY, ...defaults }
 
@@ -234,9 +236,16 @@ export function PropertyForm({ slug, mode, propertyId, defaults }: PropertyFormP
       <section>
         <h2 className="mb-1 font-display text-headline-md font-semibold text-primary">Photos</h2>
         <p className="mb-4 font-body text-body-md text-secondary">
-          Add image URLs — the first is used as the cover. Direct uploads arrive with cloud storage.
+          {uploadEnabled
+            ? 'Upload photos or paste image URLs — the first is used as the cover.'
+            : 'Add image URLs — the first is used as the cover.'}
         </p>
-        <ImageUrlManager images={values.images} onChange={(imgs) => set('images', imgs)} />
+        <ImageUrlManager
+          images={values.images}
+          onChange={(imgs) => set('images', imgs)}
+          slug={slug}
+          uploadEnabled={uploadEnabled}
+        />
       </section>
 
       {/* ── Status + submit ── */}
@@ -286,17 +295,49 @@ export function PropertyForm({ slug, mode, propertyId, defaults }: PropertyFormP
 function ImageUrlManager({
   images,
   onChange,
+  slug,
+  uploadEnabled,
 }: {
   images: string[]
   onChange: (images: string[]) => void
+  slug: string
+  uploadEnabled: boolean
 }) {
   const [draft, setDraft] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
 
   function add() {
     const url = draft.trim()
     if (!url) return
     onChange([...images, url])
     setDraft('')
+  }
+
+  /** Upload the chosen files to object storage and append their public URLs. */
+  async function upload(files: FileList | null) {
+    if (!files || files.length === 0) return
+    setUploadError(null)
+    setUploading(true)
+    try {
+      const urls: string[] = []
+      for (const file of Array.from(files)) {
+        const body = new FormData()
+        body.append('file', file)
+        const res = await fetch(`/api/org/${slug}/upload`, { method: 'POST', body })
+        const data = await res.json()
+        if (!res.ok || !data.ok) {
+          setUploadError(data.message ?? 'Upload failed.')
+          break
+        }
+        urls.push(data.url)
+      }
+      if (urls.length) onChange([...images, ...urls])
+    } catch {
+      setUploadError('Upload failed — please try again.')
+    } finally {
+      setUploading(false)
+    }
   }
 
   function remove(index: number) {
@@ -350,12 +391,37 @@ function ImageUrlManager({
         </ul>
       )}
 
+      {uploadEnabled && (
+        <div>
+          <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-outline-variant/60 px-4 py-3 font-body text-label-md font-semibold text-primary transition-colors hover:bg-surface-container-low">
+            <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
+              {uploading ? 'progress_activity' : 'upload'}
+            </span>
+            {uploading ? 'Uploading…' : 'Upload photos'}
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              disabled={uploading}
+              onChange={(e) => {
+                void upload(e.target.files)
+                e.target.value = '' // allow re-selecting the same file
+              }}
+            />
+          </label>
+          {uploadError && (
+            <p className="mt-2 font-body text-caption text-error">{uploadError}</p>
+          )}
+        </div>
+      )}
+
       <div className="flex items-end gap-3">
         <div className="flex-1">
           <Input
             id="image-url"
             type="url"
-            label="Image URL"
+            label={uploadEnabled ? '…or paste an image URL' : 'Image URL'}
             placeholder="https://images.example.com/photo.jpg"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}

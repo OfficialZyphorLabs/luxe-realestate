@@ -8,6 +8,7 @@ import { requireOrgAccess } from '@/lib/auth/session'
 import { can } from '@/lib/permissions'
 import { getOrgBySlug } from '@/lib/data/dashboard'
 import { getPropertyById } from '@/lib/data/properties'
+import { isStorageConfigured } from '@/lib/storage'
 import { PageHeader } from '@/components/dashboard/PageHeader'
 import { PropertyForm, type PropertyFormDefaults } from '@/components/dashboard/org/PropertyForm'
 
@@ -49,7 +50,13 @@ export default async function EditListingPage({
     <>
       <PageHeader title="Edit listing" description={property.title} />
       <div className="max-w-3xl">
-        <PropertyForm slug={slug} mode="edit" propertyId={property.id} defaults={defaults} />
+        <PropertyForm
+          slug={slug}
+          mode="edit"
+          propertyId={property.id}
+          defaults={defaults}
+          uploadEnabled={isStorageConfigured()}
+        />
       </div>
     </>
   )
