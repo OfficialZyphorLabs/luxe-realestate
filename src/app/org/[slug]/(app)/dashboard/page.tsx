@@ -5,7 +5,9 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireOrgAccess } from '@/lib/auth/session'
+import { isAdminOf } from '@/lib/permissions'
 import { getOrgBySlug, getOrgOverview } from '@/lib/data/dashboard'
+import { OnboardingChecklist } from '@/components/dashboard/org/OnboardingChecklist'
 import { PageHeader } from '@/components/dashboard/PageHeader'
 import { StatCard } from '@/components/dashboard/StatCard'
 import { StatusBadge } from '@/components/dashboard/StatusBadge'
@@ -24,12 +26,28 @@ export default async function OrgDashboardPage({ params }: { params: Promise<{ s
   const data = await getOrgOverview(org.id)
   const firstName = session.user.name?.split(' ')[0] ?? 'there'
 
+  // First-run onboarding: shown to admins until every step is complete.
+  const isAdmin = isAdminOf(session, slug)
+  const hasListing = data.totalListings > 0
+  const hasBranding = Boolean(org.logoUrl || org.settings?.primaryColor)
+  const hasTeam = data.memberCount > 1
+  const showOnboarding = isAdmin && !(hasListing && hasBranding && hasTeam)
+
   return (
     <>
       <PageHeader
         title={`Welcome back, ${firstName}`}
         description={`Here's what's happening at ${org.name} today.`}
       />
+
+      {showOnboarding && (
+        <OnboardingChecklist
+          slug={slug}
+          hasListing={hasListing}
+          hasBranding={hasBranding}
+          hasTeam={hasTeam}
+        />
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
