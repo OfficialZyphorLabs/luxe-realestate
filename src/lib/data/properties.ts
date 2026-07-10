@@ -8,7 +8,7 @@
 import { cache } from 'react'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@/generated/prisma'
-import type { PropertyStatus } from '@/generated/prisma'
+import type { PropertyStatus, PropertyType } from '@/generated/prisma'
 
 /** Listings shown per page on the management table/grid. */
 export const PROPERTY_PAGE_SIZE = 12
@@ -98,6 +98,41 @@ export async function isPropertySlugTaken(
 export async function listActiveOrgProperties(orgId: string) {
   return prisma.property.findMany({
     where: { organizationId: orgId, status: 'ACTIVE' },
+    include: { images: { orderBy: { order: 'asc' }, take: 1 } },
+    orderBy: { createdAt: 'desc' },
+  })
+}
+
+/** Filters accepted by the public catalog search. */
+export interface PublicPropertyFilters {
+  query?: string
+  type?: PropertyType
+  minBeds?: number
+  minPrice?: number
+  maxPrice?: number
+}
+
+/** ACTIVE listings for the public catalog, narrowed by buyer-facing filters. */
+export async function searchActiveOrgProperties(orgId: string, filters: PublicPropertyFilters = {}) {
+  const where: Prisma.PropertyWhereInput = { organizationId: orgId, status: 'ACTIVE' }
+
+  if (filters.type) where.propertyType = filters.type
+  if (filters.minBeds) where.beds = { gte: filters.minBeds }
+  if (filters.minPrice != null || filters.maxPrice != null) {
+    where.price = {}
+    if (filters.minPrice != null) where.price.gte = filters.minPrice
+    if (filters.maxPrice != null) where.price.lte = filters.maxPrice
+  }
+  if (filters.query) {
+    where.OR = [
+      { title: { contains: filters.query, mode: 'insensitive' } },
+      { address: { contains: filters.query, mode: 'insensitive' } },
+      { city: { contains: filters.query, mode: 'insensitive' } },
+    ]
+  }
+
+  return prisma.property.findMany({
+    where,
     include: { images: { orderBy: { order: 'asc' }, take: 1 } },
     orderBy: { createdAt: 'desc' },
   })
