@@ -12,11 +12,13 @@ import { ORG_PRIMARY_NAV, ORG_ADMIN_NAV, orgHref, type OrgNavItem } from '@/lib/
 interface OrgSidebarNavProps {
   slug: string
   isAdmin: boolean
+  /** Icon-only rail mode (desktop collapsed sidebar). */
+  collapsed?: boolean
   /** Called after a link is tapped (used to close the mobile drawer). */
   onNavigate?: () => void
 }
 
-export function OrgSidebarNav({ slug, isAdmin, onNavigate }: OrgSidebarNavProps) {
+export function OrgSidebarNav({ slug, isAdmin, collapsed = false, onNavigate }: OrgSidebarNavProps) {
   const pathname = usePathname()
 
   const renderItem = (item: OrgNavItem) => {
@@ -28,8 +30,11 @@ export function OrgSidebarNav({ slug, isAdmin, onNavigate }: OrgSidebarNavProps)
         href={href}
         onClick={onNavigate}
         aria-current={active ? 'page' : undefined}
+        // Native tooltip surfaces the label when collapsed to an icon rail.
+        title={collapsed ? item.label : undefined}
         className={cn(
-          'flex items-center gap-3 rounded-xl px-3 py-2.5 font-body text-label-md font-semibold transition-colors',
+          'flex items-center rounded-xl px-3 py-2.5 font-body text-label-md font-semibold transition-colors',
+          collapsed ? 'justify-center' : 'gap-3',
           active
             ? 'bg-primary text-on-primary'
             : 'text-secondary hover:bg-surface-container hover:text-primary'
@@ -38,7 +43,7 @@ export function OrgSidebarNav({ slug, isAdmin, onNavigate }: OrgSidebarNavProps)
         <span className="material-symbols-outlined text-[20px]" aria-hidden="true">
           {item.icon}
         </span>
-        {item.label}
+        {!collapsed && item.label}
       </Link>
     )
   }
@@ -49,9 +54,13 @@ export function OrgSidebarNav({ slug, isAdmin, onNavigate }: OrgSidebarNavProps)
 
       {isAdmin && (
         <>
-          <p className="mt-6 px-3 pb-1 font-body text-caption font-semibold uppercase tracking-widest text-on-surface-variant">
-            Admin Tools
-          </p>
+          {collapsed ? (
+            <div className="mx-2 my-3 border-t border-outline-variant/20" aria-hidden="true" />
+          ) : (
+            <p className="mt-6 px-3 pb-1 font-body text-caption font-semibold uppercase tracking-widest text-on-surface-variant">
+              Admin Tools
+            </p>
+          )}
           {ORG_ADMIN_NAV.map(renderItem)}
         </>
       )}
