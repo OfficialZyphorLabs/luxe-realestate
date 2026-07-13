@@ -46,3 +46,12 @@ src/generated/
 
 # design references
 /ui-code-instructions
+
+# markdown docs — keep only the essentials tracked; ignore internal
+# strategy/planning/architecture docs (BUSINESS_PLAN, PRODUCT_ROADMAP,
+# GO_TO_MARKET, SAAS_*, etc.). They stay on disk, just untracked.
+*.md
+!README.md
+!AGENTS.md
+!CLAUDE.md
+!DESIGN.md
